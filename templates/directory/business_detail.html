@@ -1,0 +1,1937 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ business.name }} - {{ business.category.name }} - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+
+<!-- ============================================
+     BUSINESS COVER BANNER
+     ============================================ -->
+<section class="business-banner">
+    {% if business.cover_image %}
+    <img src="{{ business.cover_image.url }}" alt="{{ business.name }}" class="banner-image">
+    {% else %}
+    <div class="banner-placeholder"></div>
+    {% endif %}
+    
+    <div class="banner-overlay">
+        <div class="container">
+            <div class="banner-content">
+                
+                <!-- Logo -->
+                <div class="business-logo-container">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" alt="{{ business.name }}" class="business-logo-xl">
+                    {% else %}
+                    <div class="business-logo-xl placeholder">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Info -->
+                <div class="business-header-info">
+                    <div class="business-meta-tags">
+                        {% if business.is_verified %}
+                        <span class="meta-badge verified">
+                            <i class="fas fa-crown"></i> مميز
+                        </span>
+                        {% endif %}
+                        
+                        {% if business.is_featured %}
+                        <span class="meta-badge featured">
+                            <i class="fas fa-star"></i> متميز
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <h1 class="business-name">{{ business.name }}</h1>
+                    
+                    <div class="business-category-location">
+                        <span><i class="fas fa-tag"></i> {{ business.category.name }}</span>
+                        <span><i class="fas fa-city"></i> {{ business.district.governorate.name }}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> {{ business.district.name }}</span>
+                    </div>
+                    
+                    {% if avg_rating > 0 %}
+                    <div class="business-rating">
+                        <div class="stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= avg_rating %}
+                                <i class="fas fa-star"></i>
+                                {% else %}
+                                <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="rating-text">{{ avg_rating|floatformat:1 }} ({{ total_reviews }} تقييم)</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Contact Actions -->
+                <div class="business-actions-header">
+                    <a href="tel:{{ business.phone }}" class="action-btn btn-call">
+                        <i class="fas fa-phone"></i>
+                        <span>اتصل الآن</span>
+                    </a>
+                    
+                    {% if business.whatsapp %}
+                    <a href="https://wa.me/{{ business.whatsapp|cut:'+' }}" 
+                       target="_blank" 
+                       class="action-btn btn-whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>واتساب</span>
+                    </a>
+                    {% endif %}
+                    
+                    {% if business.location_url %}
+                    <a href="{{ business.location_url }}" 
+                       target="_blank" 
+                       class="action-btn btn-location">
+                        <i class="fas fa-directions"></i>
+                        <span>الموقع</span>
+                    </a>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     MAIN CONTENT
+     ============================================ -->
+<div class="container content-wrapper">
+    <div class="row">
+        
+        <!-- ========== MAIN COLUMN ========== -->
+        <div class="col-lg-8">
+            
+            <!-- About Section -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div>
+                        <i class="fas fa-info-circle"></i>
+                        <h3>عن المحل</h3>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="about-text">{{ business.description }}</p>
+                </div>
+            </div>
+            
+            <!-- Products Section -->
+            {% if products %}
+            <div class="content-card">
+                <div class="card-header">
+                    <div>
+                        <i class="fas fa-box-open"></i>
+                        <h3>المنتجات والخدمات ({{ products.count }})</h3>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="products-grid">
+                        {% for product in products %}
+                        <div class="product-item">
+                            
+                            <!-- Product Image -->
+                            <div class="product-image-wrapper">
+                                {% if product.images.first %}
+                                <img src="{{ product.images.first.image.url }}" 
+                                     alt="{{ product.name }}" 
+                                     class="product-image">
+                                {% else %}
+                                <div class="product-image-placeholder">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                {% endif %}
+                                
+                                {% if not product.is_available %}
+                                <div class="product-unavailable">
+                                    <i class="fas fa-ban"></i> غير متوفر
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product Info -->
+                            <div class="product-info">
+                                <h5 class="product-name">{{ product.name }}</h5>
+                                <p class="product-desc">{{ product.description|truncatewords:12 }}</p>
+                                
+                                <div class="product-footer">
+                                    <div class="product-price">{{ product.price }} جنيه</div>
+                                    {% if product.has_delivery %}
+                                    <span class="delivery-badge">
+                                        <i class="fas fa-truck"></i> توصيل
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Reviews Section -->
+            <div class="content-card" id="reviews-section">
+                <div class="card-header">
+                    <div>
+                        <i class="fas fa-star"></i>
+                        <h3>آراء العملاء ({{ total_reviews }})</h3>
+                    </div>
+                    {% if user.is_authenticated %}
+                    <button class="btn-add-review" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                        <i class="fas fa-plus"></i> أضف تقييمك
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <div class="reviewer-avatar">
+                                        {{ review.user.get_full_name|default:review.user.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <h6 class="reviewer-name">{{ review.user.get_full_name|default:review.user.username }}</h6>
+                                        <div class="review-stars">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= review.rating %}
+                                                <i class="fas fa-star"></i>
+                                                {% else %}
+                                                <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-date">{{ review.created_at|date:"d M Y" }}</div>
+                            </div>
+                            <p class="review-comment">{{ review.comment }}</p>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Pagination للتقييمات -->
+                        {% if reviews.has_other_pages %}
+                        <div class="reviews-pagination">
+                            <nav>
+                                <ul class="pagination-custom">
+                                    {% if reviews.has_previous %}
+                                    <li>
+                                        <a href="?page={{ reviews.previous_page_number }}#reviews-section">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    {% for num in reviews.paginator.page_range %}
+                                        {% if reviews.number == num %}
+                                        <li class="active">
+                                            <span>{{ num }}</span>
+                                        </li>
+                                        {% elif num > reviews.number|add:'-3' and num < reviews.number|add:'3' %}
+                                        <li>
+                                            <a href="?page={{ num }}#reviews-section">{{ num }}</a>
+                                        </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if reviews.has_next %}
+                                    <li>
+                                        <a href="?page={{ reviews.next_page_number }}#reviews-section">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                        
+                    {% else %}
+                        <div class="no-reviews">
+                            <i class="fas fa-comments"></i>
+                            <p>لا توجد تقييمات بعد. كن أول من يقيّم!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- ========== SIDEBAR ========== -->
+        <div class="col-lg-4">
+            
+            <!-- Contact Card -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <div>
+                        <i class="fas fa-address-card"></i>
+                        <h3>معلومات الاتصال</h3>
+                    </div>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Phone -->
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <label>الهاتف</label>
+                            <div class="contact-value">
+                                <a href="tel:{{ business.phone }}">{{ business.phone }}</a>
+                                <button class="copy-btn" onclick="copyText('{{ business.phone }}')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- WhatsApp -->
+                    {% if business.whatsapp %}
+                    <div class="contact-item">
+                        <div class="contact-icon whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="contact-details">
+                            <label>واتساب</label>
+                            <div class="contact-value">
+                                <a href="https://wa.me/{{ business.whatsapp|cut:'+' }}" target="_blank">
+                                    {{ business.whatsapp }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Email -->
+                    {% if business.email %}
+                    <div class="contact-item">
+                        <div class="contact-icon email">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <label>البريد الإلكتروني</label>
+                            <div class="contact-value">
+                                <a href="mailto:{{ business.email }}">{{ business.email }}</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Address -->
+                    <div class="contact-item">
+                        <div class="contact-icon address">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <label>العنوان</label>
+                            <div class="contact-value">{{ business.address }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Working Hours -->
+                    {% if business.working_hours %}
+                    <div class="contact-item">
+                        <div class="contact-icon hours">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-details">
+                            <label>ساعات العمل</label>
+                            <div class="contact-value" style="white-space: pre-line;">{{ business.working_hours }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                </div>
+            </div>
+            
+            <!-- Map Card -->
+            {% if business.latitude and business.longitude %}
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <div>
+                        <i class="fas fa-map"></i>
+                        <h3>الموقع على الخريطة</h3>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map"></div>
+                    <a href="https://www.google.com/maps?q={{ business.latitude }},{{ business.longitude }}" 
+                       target="_blank" 
+                       class="map-button">
+                        <i class="fas fa-directions"></i> فتح في خرائط جوجل
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Stats Card -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <div>
+                        <i class="fas fa-chart-line"></i>
+                        <h3>الإحصائيات</h3>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-icon views">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="stat-value">{{ business.view_count|default:0 }}</div>
+                            <div class="stat-label">مشاهدة</div>
+                        </div>
+                        
+                        <div class="stat-box">
+                            <div class="stat-icon ratings">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-value">{{ total_reviews|default:0 }}</div>
+                            <div class="stat-label">تقييم</div>
+                        </div>
+                        
+                        <div class="stat-box">
+                            <div class="stat-icon products">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="stat-value">{{ products.count|default:0 }}</div>
+                            <div class="stat-label">منتج</div>
+                        </div>
+                    </div>
+                    
+                    <div class="date-info">
+                        <i class="fas fa-calendar"></i>
+                        <span>تاريخ الإضافة: {{ business.created_at|date:"d M Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     REVIEW MODAL
+     ============================================ -->
+{% if user.is_authenticated %}
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-star text-warning"></i>
+                    أضف تقييمك لـ {{ business.name }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="rating-input-wrapper">
+                        <label>التقييم</label>
+                        <div class="rating-input">
+                            {% for i in "54321" %}
+                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required>
+                            <label for="star{{ i }}">
+                                <i class="fas fa-star"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="comment-input-wrapper">
+                        <label>التعليق</label>
+                        <textarea name="comment" rows="4" required placeholder="شاركنا رأيك وتجربتك..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" name="add_review" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i> إرسال التقييم
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+<!-- ============================================
+     EXTRA CSS
+     ============================================ -->
+{% block extra_css %}
+<!-- Leaflet CSS -->
+{% if business.latitude and business.longitude %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+      crossorigin=""/>
+{% endif %}
+
+<style>
+    /* ========== Business Banner ========== */
+    .business-banner {
+        position: relative;
+        height: 400px;
+        overflow: hidden;
+    }
+
+    .banner-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .banner-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .banner-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+        padding: 3rem 0 2rem;
+    }
+
+    .banner-content {
+        display: grid;
+        grid-template-columns: 140px 1fr auto;
+        gap: 2rem;
+        align-items: end;
+    }
+
+    /* Logo */
+    .business-logo-xl {
+        width: 140px;
+        height: 140px;
+        border-radius: 20px;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .business-logo-xl.placeholder {
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e0;
+        font-size: 3rem;
+    }
+
+    /* Header Info */
+    .business-header-info {
+        color: white;
+    }
+
+    .business-meta-tags {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .meta-badge {
+        padding: 0.375rem 0.875rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .meta-badge.verified {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #000;
+    }
+
+    .meta-badge.featured {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .business-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: white;
+    }
+
+    .business-category-location {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+        opacity: 0.95;
+    }
+
+    .business-category-location span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .business-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .business-rating .stars {
+        color: #ffd700;
+        font-size: 1.25rem;
+    }
+
+    .rating-text {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    /* Header Actions */
+    .business-actions-header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        white-space: nowrap;
+    }
+
+    .btn-call {
+        background: white;
+        color: #667eea;
+    }
+
+    .btn-call:hover {
+        background: #f7fafc;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+    }
+
+    .btn-whatsapp {
+        background: #25d366;
+        color: white;
+    }
+
+    .btn-whatsapp:hover {
+        background: #20ba5a;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+    }
+
+    .btn-location {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-location:hover {
+        background: rgba(255,255,255,0.25);
+    }
+
+    /* ========== Content Wrapper ========== */
+    .content-wrapper {
+        padding: 3rem 0;
+    }
+
+    /* Content Cards */
+    .content-card, .sidebar-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1.5rem;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .card-header > div {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-header i {
+        color: #667eea;
+        font-size: 1.25rem;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a202c;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* About Text */
+    .about-text {
+        color: #4a5568;
+        font-size: 1rem;
+        line-height: 1.8;
+        margin: 0;
+    }
+
+    /* ========== Products Grid ========== */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .product-item {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .product-item:hover {
+        border-color: #667eea;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .product-image-wrapper {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: #f7fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e0;
+        font-size: 3rem;
+    }
+
+    .product-unavailable {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        gap: 0.5rem;
+    }
+
+    .product-info {
+        padding: 1rem;
+    }
+
+    .product-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-desc {
+        font-size: 0.875rem;
+        color: #718096;
+        margin-bottom: 0.75rem;
+    }
+
+    .product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .product-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .delivery-badge {
+        padding: 0.375rem 0.75rem;
+        background: #48bb78;
+        color: white;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* ========== Reviews ========== */
+    .btn-add-review {
+        padding: 0.625rem 1.25rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-add-review:hover {
+        background: #764ba2;
+    }
+
+    .review-item {
+        padding: 1.25rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.75rem;
+    }
+
+    .reviewer-info {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .reviewer-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+
+    .reviewer-name {
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+    }
+
+    .review-stars {
+        color: #ffc107;
+        font-size: 0.875rem;
+    }
+
+    .review-date {
+        font-size: 0.875rem;
+        color: #718096;
+    }
+
+    .review-comment {
+        color: #4a5568;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .no-reviews {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #718096;
+    }
+
+    .no-reviews i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* ========== Sidebar ========== */
+    .sidebar-card {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Contact Items */
+    .contact-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .contact-item:last-child {
+        border-bottom: none;
+    }
+
+    .contact-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        background: #667eea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .contact-icon.whatsapp {
+        background: #25d366;
+    }
+
+    .contact-icon.email {
+        background: #ea4335;
+    }
+
+    .contact-icon.address {
+        background: #34a853;
+    }
+
+    .contact-icon.hours {
+        background: #fbbc04;
+    }
+
+    .contact-details {
+        flex: 1;
+    }
+
+    .contact-details label {
+        display: block;
+        font-size: 0.875rem;
+        color: #718096;
+        margin-bottom: 0.25rem;
+    }
+
+    .contact-value {
+        color: #1a202c;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .contact-value a {
+        color: #1a202c;
+        text-decoration: none;
+    }
+
+    .contact-value a:hover {
+        color: #667eea;
+    }
+
+    .copy-btn {
+        padding: 0.25rem 0.5rem;
+        background: #e2e8f0;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        color: #4a5568;
+        transition: all 0.3s;
+    }
+
+    .copy-btn:hover {
+        background: #cbd5e0;
+    }
+
+    /* Map */
+    #map {
+        width: 100%;
+        height: 300px;
+        border-radius: 0;
+    }
+
+    .map-button {
+        display: block;
+        padding: 1rem;
+        background: #667eea;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .map-button:hover {
+        background: #764ba2;
+        color: white;
+    }
+
+    /* Stats */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+        text-align: center;
+        padding: 1rem;
+        background: #f7fafc;
+        border-radius: 12px;
+        transition: all 0.3s;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 0.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.views {
+        background: #4299e1;
+    }
+
+    .stat-icon.ratings {
+        background: #ed8936;
+    }
+
+    .stat-icon.products {
+        background: #48bb78;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #718096;
+    }
+
+    .date-info {
+        padding: 1rem;
+        background: #f7fafc;
+        border-radius: 8px;
+        text-align: center;
+        color: #4a5568;
+        font-size: 0.875rem;
+    }
+
+    /* ========== Reviews Pagination ========== */
+    .reviews-pagination {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .pagination-custom {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .pagination-custom li {
+        display: inline-block;
+    }
+
+    .pagination-custom li a,
+    .pagination-custom li span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0.5rem;
+        border-radius: 8px;
+        background: #f7fafc;
+        color: #4a5568;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .pagination-custom li a:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .pagination-custom li.active span {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+    }
+
+    .pagination-custom li a i {
+        font-size: 0.875rem;
+    }
+
+    /* Scroll Target */
+    #reviews-section {
+        scroll-margin-top: 100px;
+    }
+
+    /* ========== Modal ========== */
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        font-weight: 700;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .rating-input-wrapper {
+        margin-bottom: 1.5rem;
+    }
+
+    .rating-input-wrapper label,
+    .comment-input-wrapper label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: #1a202c;
+    }
+
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .rating-input input {
+        display: none;
+    }
+
+    .rating-input label {
+        cursor: pointer;
+        font-size: 2.5rem;
+        color: #e2e8f0;
+        transition: all 0.3s;
+    }
+
+    .rating-input input:checked ~ label,
+    .rating-input label:hover,
+    .rating-input label:hover ~ label {
+        color: #ffc107;
+    }
+
+    .comment-input-wrapper textarea {
+        width: 100%;
+        padding: 0.875rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-family: inherit;
+        resize: vertical;
+        outline: none;
+        transition: all 0.3s;
+    }
+
+    .comment-input-wrapper textarea:focus {
+        border-color: #667eea;
+    }
+
+    .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .modal-footer button {
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-secondary {
+        background: #e2e8f0;
+        color: #4a5568;
+    }
+
+    .btn-secondary:hover {
+        background: #cbd5e0;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 1024px) {
+        .products-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .business-banner {
+            height: auto;
+        }
+
+        .banner-content {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            text-align: center;
+        }
+
+        .business-logo-xl {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+
+        .business-name {
+            font-size: 1.75rem;
+        }
+
+        .business-category-location {
+            justify-content: center;
+        }
+
+        .business-rating {
+            justify-content: center;
+        }
+
+        .business-actions-header {
+            flex-direction: row;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+<!-- ============================================
+     EXTRA JS
+     ============================================ -->
+{% block extra_js %}
+{% if business.latitude and business.longitude %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapDiv = document.getElementById('map');
+        if (!mapDiv) return;
+        
+        const lat = {{ business.latitude }};
+        const lng = {{ business.longitude }};
+        
+        try {
+            const map = L.map('map').setView([lat, lng], 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 19
+            }).addTo(map);
+            
+            const customIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            
+            const marker = L.marker([lat, lng], {icon: customIcon}).addTo(map);
+            
+            marker.bindPopup(`
+                <div style="text-align: center; font-family: 'Cairo', sans-serif;">
+                    <strong style="font-size: 16px;">${'{{ business.name|escapejs }}'}</strong><br>
+                    <span style="color: #666;">${'{{ business.address|escapejs }}'}</span>
+                </div>
+            `).openPopup();
+            
+            setTimeout(() => map.invalidateSize(), 100);
+            
+        } catch (error) {
+            console.error('Map Error:', error);
+        }
+    });
+</script>
+{% endif %}
+
+<script>
+    function copyText(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('✅ تم نسخ الرقم!');
+        }).catch(err => {
+            console.error('فشل النسخ:', err);
+        });
+    }
+    
+    // Smooth scroll للتقييمات عند الـ pagination
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hash === '#reviews-section') {
+            setTimeout(() => {
+                document.querySelector('#reviews-section').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
+        }
+    });
+</script>
+{% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ business.name }} - {{ business.category.name }} - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+{% if business.latitude and business.longitude %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+      crossorigin=""/>
+{% endif %}
+
+<style>
+    .business-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+    }
+    
+    .business-logo-large {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 15px;
+        border: 5px solid white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    .contact-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .contact-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+    
+    .info-card h4 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: start;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-item i {
+        color: #667eea;
+        width: 30px;
+        margin-left: 10px;
+    }
+    
+    .product-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        transition: all 0.3s;
+        height: 100%;
+    }
+    
+    .product-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+    
+    .product-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 12px;
+    }
+    
+    .price-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .review-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .review-stars {
+        color: #ffc107;
+        font-size: 1.1rem;
+    }
+    
+    /* ✅ مهم جداً: حدد Height للخريطة! */
+    #map {
+        width: 100%;
+        height: 400px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        z-index: 1;
+    }
+    
+    .leaflet-popup-content {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+        text-align: center;
+    }
+    
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .rating-input input {
+        display: none;
+    }
+    
+    .rating-input label {
+        cursor: pointer;
+        font-size: 2rem;
+        color: #ddd;
+        transition: color 0.2s;
+    }
+    
+    .rating-input input:checked ~ label,
+    .rating-input label:hover,
+    .rating-input label:hover ~ label {
+        color: #ffc107;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Business Header -->
+<section class="business-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-start">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" 
+                         alt="{{ business.name }}" 
+                         class="business-logo-large me-4">
+                    {% else %}
+                    <div class="business-logo-large me-4 bg-white d-flex align-items-center justify-content-center">
+                        <i class="fas fa-store text-muted fs-1"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <h1 class="mb-2">{{ business.name }}</h1>
+                        <p class="mb-2">
+                            <i class="fas fa-tag"></i> {{ business.category.name }}
+                            <span class="mx-2">|</span>
+                            <i class="fas fa-map-marker-alt"></i> {{ business.district.name }}
+                        </p>
+                        
+                        {% if avg_rating > 0 %}
+                        <div class="review-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= avg_rating %}
+                                <i class="fas fa-star"></i>
+                                {% else %}
+                                <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="text-white ms-2">({{ total_reviews }} تقييم)</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if business.is_verified %}
+                        <span class="badge bg-warning text-dark mt-2">
+                            <i class="fas fa-crown"></i> محل مميز
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-end">
+                <div class="d-flex flex-column gap-2">
+                    <a href="tel:{{ business.phone }}" class="contact-btn btn btn-light">
+                        <i class="fas fa-phone"></i>
+                        اتصل الآن
+                    </a>
+                    
+                    {% if business.whatsapp %}
+                    <a href="https://wa.me/{{ business.whatsapp|cut:'+' }}" 
+                       target="_blank" 
+                       class="contact-btn btn btn-success">
+                        <i class="fab fa-whatsapp"></i>
+                        واتساب
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- About Section -->
+            <div class="info-card">
+                <h4><i class="fas fa-info-circle"></i> عن المحل</h4>
+                <p class="text-muted mb-0">{{ business.description }}</p>
+            </div>
+            
+            <!-- Products Section -->
+            {% if products %}
+            <div class="info-card">
+                <h4><i class="fas fa-box-open"></i> المنتجات والخدمات</h4>
+                
+                <div class="row g-3">
+                    {% for product in products %}
+                    <div class="col-md-6">
+                        <div class="product-card">
+                            {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" 
+                                 alt="{{ product.name }}" 
+                                 class="product-image">
+                            {% endif %}
+                            
+                            <h5 class="mb-2">{{ product.name }}</h5>
+                            <p class="text-muted small mb-3">{{ product.description|truncatewords:15 }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-badge">{{ product.price }} جنيه</span>
+                                
+                                {% if product.has_delivery %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-truck"></i> توصيل
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if not product.is_available %}
+                            <div class="alert alert-warning mt-2 mb-0 small">
+                                <i class="fas fa-exclamation-triangle"></i> غير متوفر حالياً
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Reviews Section -->
+            {% if reviews %}
+            <div class="info-card">
+                <h4><i class="fas fa-star"></i> آراء العملاء ({{ total_reviews }})</h4>
+                
+                {% for review in reviews %}
+                <div class="review-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                            <div class="review-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ review.created_at|date:"d M Y" }}</small>
+                    </div>
+                    <p class="mb-0">{{ review.comment }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Add Review Button -->
+            {% if user.is_authenticated %}
+            <div class="text-center mb-4">
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                    <i class="fas fa-plus"></i> أضف تقييمك
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Contact Info -->
+            <div class="info-card">
+                <h4><i class="fas fa-address-card"></i> معلومات الاتصال</h4>
+                
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <strong>الهاتف</strong>
+                        <p class="mb-0">
+                            <a href="tel:{{ business.phone }}" class="text-decoration-none">
+                                {{ business.phone }}
+                            </a>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                    onclick="copyToClipboard('{{ business.phone }}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </p>
+                    </div>
+                </div>
+                
+                {% if business.whatsapp %}
+                <div class="info-item">
+                    <i class="fab fa-whatsapp"></i>
+                    <div>
+                        <strong>واتساب</strong>
+                        <p class="mb-0">{{ business.whatsapp }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if business.email %}
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <strong>البريد الإلكتروني</strong>
+                        <p class="mb-0">
+                            <a href="mailto:{{ business.email }}" class="text-decoration-none">
+                                {{ business.email }}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <strong>العنوان</strong>
+                        <p class="mb-0">{{ business.address }}</p>
+                    </div>
+                </div>
+                
+                {% if business.working_hours %}
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <strong>ساعات العمل</strong>
+                        <p class="mb-0" style="white-space: pre-line;">{{ business.working_hours }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Map -->
+            {% if business.latitude and business.longitude %}
+            <div class="info-card">
+                <h4><i class="fas fa-map"></i> الموقع على الخريطة</h4>
+                <div id="map"></div>
+                <a href="https://www.google.com/maps?q={{ business.latitude }},{{ business.longitude }}" 
+                   target="_blank" 
+                   class="btn btn-primary w-100 mt-3">
+                    <i class="fas fa-directions"></i> فتح في خرائط جوجل
+                </a>
+            </div>
+            {% endif %}
+            
+            <!-- Stats -->
+<div class="info-card">
+    <h4><i class="fas fa-chart-line"></i> الإحصائيات</h4>
+    
+    <div class="row g-3 text-center">
+        <!-- المشاهدات -->
+        <div class="col-4">
+            <div class="stat-box">
+                <div class="stat-icon bg-primary text-white mb-2">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3 class="mb-0">{{ business.view_count|default:0 }}</h3>
+                <small class="text-muted">مشاهدة</small>
+            </div>
+        </div>
+        
+        <!-- التقييمات -->
+        <div class="col-4">
+            <div class="stat-box">
+                <div class="stat-icon bg-warning text-white mb-2">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h3 class="mb-0">{{ total_reviews|default:0 }}</h3>
+                <small class="text-muted">تقييم</small>
+            </div>
+        </div>
+        
+        <!-- المنتجات -->
+        <div class="col-4">
+            <div class="stat-box">
+                <div class="stat-icon bg-success text-white mb-2">
+                    <i class="fas fa-box"></i>
+                </div>
+                <h3 class="mb-0">{{ products.count|default:0 }}</h3>
+                <small class="text-muted">منتج</small>
+            </div>
+        </div>
+    </div>
+    
+    <hr class="my-3">
+    
+    <div class="info-item">
+        <i class="fas fa-calendar"></i>
+        <div>
+            <strong>تاريخ الإضافة</strong>
+            <p class="mb-0">{{ business.created_at|date:"d M Y" }}</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-box {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-box h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+}
+</style>
+
+<!-- Review Modal -->
+{% if user.is_authenticated %}
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">أضف تقييمك لـ {{ business.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'business_detail' business.slug %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">التقييم</label>
+                        <div class="rating-input">
+                            {% for i in "12345" %}
+                            <input type="radio" name="rating" value="{{ forloop.counter }}" id="star{{ forloop.counter }}" required>
+                            <label for="star{{ forloop.counter }}">
+                                <i class="fas fa-star"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">التعليق</label>
+                        <textarea name="comment" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" name="add_review" class="btn btn-primary">إرسال التقييم</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if business.latitude and business.longitude %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+<script>
+    // ✅ استخدم DOMContentLoaded بدل window.onload
+    document.addEventListener('DOMContentLoaded', function() {
+        // تأكد إن الـ map div موجود
+        const mapDiv = document.getElementById('map');
+        if (!mapDiv) {
+            console.error('Map div not found!');
+            return;
+        }
+        
+        const lat = {{ business.latitude }};
+        const lng = {{ business.longitude }};
+        
+        try {
+            // إنشاء الخريطة
+            const map = L.map('map').setView([lat, lng], 15);
+            
+            // إضافة طبقة OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // إضافة Marker مع أيقونة مخصصة
+            const customIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            
+            const marker = L.marker([lat, lng], {icon: customIcon}).addTo(map);
+            
+            // إضافة Popup
+            marker.bindPopup(`
+                <div style="text-align: center; font-family: 'Cairo', sans-serif;">
+                    <strong style="font-size: 16px;">${'{{ business.name|escapejs }}'}</strong><br>
+                    <span style="color: #666;">${'{{ business.address|escapejs }}'}</span>
+                </div>
+            `).openPopup();
+            
+            // تحسين حجم الخريطة بعد التحميل
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 100);
+            
+        } catch (error) {
+            console.error('Error initializing map:', error);
+        }
+    });
+</script>
+{% endif %}
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('تم نسخ الرقم!');
+        }).catch(err => {
+            console.error('فشل النسخ:', err);
+        });
+    }
+</script>
+{% endblock %} {% endcomment %}

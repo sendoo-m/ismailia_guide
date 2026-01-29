@@ -1,0 +1,774 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تعديل {{ business.name }} - لوحة التحكم{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h4 class="mb-0">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                لوحة التحكم
+            </h4>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'vendor_dashboard' %}" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            
+            <a href="{% url 'manage_products' %}" class="nav-link">
+                <i class="fas fa-box"></i>
+                <span>المنتجات</span>
+            </a>
+            
+            <a href="{% url 'dashboard_settings' %}" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            
+            <hr>
+            
+            <a href="{% url 'logout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل الخروج</span>
+            </a>
+        </nav>
+    </aside>
+    
+    <main class="dashboard-main">
+        <div class="dashboard-topbar">
+            <div>
+                <h2 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>
+                    تعديل محل: {{ business.name }}
+                </h2>
+                <p class="text-muted mb-0">قم بتحديث بيانات محلك</p>
+            </div>
+            <div>
+                <a href="{% url 'business_detail' business.slug %}" 
+                   class="btn btn-outline-primary"
+                   target="_blank">
+                    <i class="fas fa-eye me-2"></i> عرض المحل
+                </a>
+            </div>
+        </div>
+        
+        <!-- Edit Form -->
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-4">
+                <!-- Basic Info -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                المعلومات الأساسية
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">اسم المحل *</label>
+                                    <input type="text" 
+                                           name="name" 
+                                           class="form-control form-control-lg" 
+                                           value="{{ business.name }}"
+                                           required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">الفئة *</label>
+                                    <select name="category" class="form-select" required>
+                                        {% for cat in categories %}
+                                        <option value="{{ cat.id }}" {% if cat.id == business.category.id %}selected{% endif %}>
+                                            {{ cat.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">المنطقة *</label>
+                                    <select name="district" class="form-select" required>
+                                        {% for dist in districts %}
+                                        <option value="{{ dist.id }}" {% if dist.id == business.district.id %}selected{% endif %}>
+                                            {{ dist.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">الوصف *</label>
+                                    <textarea name="description" 
+                                              class="form-control" 
+                                              rows="4"
+                                              required>{{ business.description }}</textarea>
+                                    <small class="text-muted">وصف تفصيلي عن محلك ومنتجاتك</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">
+                                <i class="fas fa-phone text-success me-2"></i>
+                                معلومات الاتصال
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">رقم الهاتف *</label>
+                                    <input type="tel" 
+                                           name="phone" 
+                                           class="form-control" 
+                                           value="{{ business.phone }}"
+                                           required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">واتساب</label>
+                                    <input type="tel" 
+                                           name="whatsapp" 
+                                           class="form-control" 
+                                           value="{{ business.whatsapp }}">
+                                </div>
+                                
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">البريد الإلكتروني</label>
+                                    <input type="email" 
+                                           name="email" 
+                                           class="form-control" 
+                                           value="{{ business.email }}">
+                                </div>
+                                
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">ساعات العمل</label>
+                                    <input type="text" 
+                                           name="working_hours" 
+                                           class="form-control" 
+                                           value="{{ business.working_hours }}"
+                                           placeholder="مثال: السبت - الخميس: 9 صباحاً - 10 مساءً">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                الموقع
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">العنوان *</label>
+                                    <textarea name="address" 
+                                              class="form-control" 
+                                              rows="2"
+                                              required>{{ business.address }}</textarea>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">خط العرض (Latitude)</label>
+                                    <input type="text" 
+                                           name="latitude" 
+                                           class="form-control" 
+                                           value="{{ business.latitude }}"
+                                           placeholder="30.5965">
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">خط الطول (Longitude)</label>
+                                    <input type="text" 
+                                           name="longitude" 
+                                           class="form-control" 
+                                           value="{{ business.longitude }}"
+                                           placeholder="32.2715">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logo & Actions -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0">
+                                <i class="fas fa-image text-info me-2"></i>
+                                شعار المحل
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if business.logo %}
+                            <img src="{{ business.logo.url }}" 
+                                 alt="{{ business.name }}" 
+                                 class="img-fluid rounded mb-3"
+                                 style="max-width: 200px;">
+                            {% else %}
+                            <div class="bg-light rounded p-5 mb-3">
+                                <i class="fas fa-store fs-1 text-muted"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <input type="file" 
+                                   name="logo" 
+                                   class="form-control"
+                                   accept="image/*">
+                            <small class="text-muted d-block mt-2">
+                                PNG, JPG أو GIF (الحد الأقصى 2MB)
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Status -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-3">حالة المحل</h6>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>الحالة:</span>
+                                {% if business.is_active %}
+                                <span class="badge bg-success">نشط</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">معلق</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>التوثيق:</span>
+                                {% if business.is_verified %}
+                                <span class="badge bg-primary">موثق</span>
+                                {% else %}
+                                <span class="badge bg-secondary">غير موثق</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>المشاهدات:</span>
+                                <span class="badge bg-info">{{ business.view_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i> حفظ التعديلات
+                        </button>
+                        
+                        <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i> إلغاء
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-sidebar {
+        width: 280px;
+        background: white;
+        border-left: 1px solid #dee2e6;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .sidebar-header {
+        padding: 25px 20px;
+        border-bottom: 1px solid #dee2e6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .sidebar-nav {
+        padding: 20px 0;
+    }
+    
+    .sidebar-nav .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+    
+    .sidebar-nav .nav-link i {
+        width: 20px;
+        margin-left: 10px;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+    }
+    
+    .dashboard-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+    }
+</style>
+{% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تعديل {{ business.name }} - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .edit-container {
+        padding: 40px 0;
+        background: #f8f9fa;
+    }
+    
+    .edit-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        color: #667eea;
+        font-weight: 700;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .logo-preview {
+        max-width: 200px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    }
+    
+    #map-picker {
+        height: 400px;
+        border-radius: 15px;
+        margin-top: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        z-index: 1;
+    }
+    
+    .coordinates-display {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+    
+    .alert-map-info {
+        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        border: 2px solid #667eea;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 12px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="edit-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold mb-0">
+                        <i class="fas fa-edit text-primary"></i>
+                        تعديل بيانات المحل
+                    </h2>
+                    <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-right"></i> رجوع للوحة التحكم
+                    </a>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- المعلومات الأساسية -->
+                    <div class="edit-card">
+                        <h4 class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            المعلومات الأساسية
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">اسم المحل *</label>
+                            <input type="text" 
+                                   name="name" 
+                                   class="form-control form-control-lg" 
+                                   value="{{ business.name }}"
+                                   required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">الفئة *</label>
+                                <select name="category" class="form-select form-select-lg" required>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}" 
+                                            {% if business.category.id == category.id %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">الحي *</label>
+                                <select name="district" class="form-select form-select-lg" required>
+                                    {% for district in districts %}
+                                    <option value="{{ district.id }}"
+                                            {% if business.district.id == district.id %}selected{% endif %}>
+                                        {{ district.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">اللوجو</label>
+                            {% if business.logo %}
+                            <div class="mb-2">
+                                <img src="{{ business.logo.url }}" 
+                                     alt="Logo" 
+                                     class="logo-preview">
+                            </div>
+                            {% endif %}
+                            <input type="file" 
+                                   name="logo" 
+                                   class="form-control" 
+                                   accept="image/*">
+                            <small class="text-muted">اترك الحقل فارغاً إذا لم ترد التغيير. (PNG, JPG - حجم أقصى 5 ميجا)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">الوصف *</label>
+                            <textarea name="description" 
+                                      class="form-control" 
+                                      rows="5" 
+                                      required 
+                                      placeholder="اكتب وصفاً تفصيلياً عن محلك والخدمات التي تقدمها...">{{ business.description }}</textarea>
+                            <small class="text-muted">وصف جيد يجذب المزيد من العملاء!</small>
+                        </div>
+                    </div>
+                    
+                    <!-- معلومات الاتصال -->
+                    <div class="edit-card">
+                        <h4 class="section-title">
+                            <i class="fas fa-phone"></i>
+                            معلومات الاتصال
+                        </h4>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">رقم الهاتف *</label>
+                                <input type="text" 
+                                       name="phone" 
+                                       class="form-control form-control-lg" 
+                                       value="{{ business.phone }}"
+                                       placeholder="01xxxxxxxxx"
+                                       required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">واتساب (اختياري)</label>
+                                <input type="text" 
+                                       name="whatsapp" 
+                                       class="form-control form-control-lg" 
+                                       value="{{ business.whatsapp|default:'' }}"
+                                       placeholder="01xxxxxxxxx">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">البريد الإلكتروني (اختياري)</label>
+                            <input type="email" 
+                                   name="email" 
+                                   class="form-control form-control-lg" 
+                                   value="{{ business.email|default:'' }}"
+                                   placeholder="example@email.com">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">ساعات العمل</label>
+                            <textarea name="working_hours" 
+                                      class="form-control" 
+                                      rows="3"
+                                      placeholder="مثال:&#10;السبت - الخميس: 9 صباحاً - 10 مساءً&#10;الجمعة: مغلق">{{ business.working_hours|default:'' }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- الموقع والخريطة -->
+                    <div class="edit-card">
+                        <h4 class="section-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            الموقع على الخريطة
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">العنوان التفصيلي *</label>
+                            <textarea name="address" 
+                                      class="form-control" 
+                                      rows="2" 
+                                      id="address-input"
+                                      placeholder="الشارع، الحي، علامات مميزة..."
+                                      required>{{ business.address }}</textarea>
+                        </div>
+                        
+                        <div class="alert-map-info">
+                            <i class="fas fa-info-circle text-primary"></i>
+                            <strong>حدد موقع المحل على الخريطة:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>اضغط على الخريطة لتحديد الموقع</li>
+                                <li>أو اسحب العلامة (Marker) للمكان الصحيح</li>
+                                <li>أو ابحث عن العنوان في حقل البحث</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">ابحث عن العنوان</label>
+                                <input type="text" 
+                                       id="search-address" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="مثال: شارع الثورة، الإسماعيلية...">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" 
+                                        id="search-btn" 
+                                        class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- الخريطة -->
+                        <div id="map-picker"></div>
+                        
+                        <!-- الإحداثيات -->
+                        <div class="coordinates-display">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong><i class="fas fa-crosshairs"></i> خط العرض (Latitude):</strong>
+                                    <input type="text" 
+                                           name="latitude" 
+                                           id="latitude" 
+                                           class="form-control mt-2" 
+                                           value="{{ business.latitude|default:'' }}"
+                                           readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong><i class="fas fa-crosshairs"></i> خط الطول (Longitude):</strong>
+                                    <input type="text" 
+                                           name="longitude" 
+                                           id="longitude" 
+                                           class="form-control mt-2" 
+                                           value="{{ business.longitude|default:'' }}"
+                                           readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- أزرار الحفظ -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-save btn-lg">
+                            <i class="fas fa-save"></i> حفظ جميع التعديلات
+                        </button>
+                        <a href="{% url 'vendor_dashboard' %}" 
+                           class="btn btn-outline-secondary btn-lg ms-3">
+                            <i class="fas fa-times"></i> إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map;
+    let marker;
+    
+    // الإحداثيات الافتراضية (الإسماعيلية أو موقع المحل الحالي)
+    const defaultLat = {{ business.latitude|default:'30.5833' }};
+    const defaultLng = {{ business.longitude|default:'32.2667' }};
+    
+    function initMap() {
+        // إنشاء الخريطة
+        map = L.map('map-picker').setView([defaultLat, defaultLng], 15);
+        
+        // إضافة طبقة الخريطة من OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // إنشاء Marker
+        marker = L.marker([defaultLat, defaultLng], {
+            draggable: true,
+            title: 'اسحب لتحديد الموقع'
+        }).addTo(map);
+        
+        marker.bindPopup('<strong>{{ business.name }}</strong>').openPopup();
+        
+        // عند الضغط على الخريطة
+        map.on('click', function(e) {
+            placeMarker(e.latlng);
+        });
+        
+        // عند سحب الـ Marker
+        marker.on('dragend', function(e) {
+            const position = e.target.getLatLng();
+            updateCoordinates(position.lat, position.lng);
+        });
+    }
+    
+    function placeMarker(latlng) {
+        marker.setLatLng(latlng);
+        map.panTo(latlng);
+        updateCoordinates(latlng.lat, latlng.lng);
+    }
+    
+    function updateCoordinates(lat, lng) {
+        document.getElementById('latitude').value = lat.toFixed(6);
+        document.getElementById('longitude').value = lng.toFixed(6);
+    }
+    
+    // البحث عن عنوان باستخدام Nominatim
+    document.getElementById('search-btn').addEventListener('click', function() {
+        const address = document.getElementById('search-address').value;
+        
+        if (!address) {
+            alert('من فضلك أدخل عنواناً للبحث');
+            return;
+        }
+        
+        // عرض مؤشر التحميل
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
+        this.disabled = true;
+        
+        // البحث باستخدام Nominatim API (مجاني)
+        const searchQuery = encodeURIComponent(address + ', الإسماعيلية, مصر');
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${searchQuery}&limit=1`;
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    
+                    map.setView([lat, lon], 17);
+                    marker.setLatLng([lat, lon]);
+                    updateCoordinates(lat, lon);
+                    
+                    // إظهار popup بالعنوان
+                    marker.bindPopup('<strong>تم العثور على الموقع!</strong><br>' + data[0].display_name).openPopup();
+                } else {
+                    alert('لم يتم العثور على العنوان. جرب عنواناً أكثر تفصيلاً.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ في البحث. تأكد من الاتصال بالإنترنت.');
+            })
+            .finally(() => {
+                // إعادة الزر لحالته الطبيعية
+                this.innerHTML = '<i class="fas fa-search"></i> بحث';
+                this.disabled = false;
+            });
+    });
+    
+    // إضافة مستمع لزر Enter في حقل البحث
+    document.getElementById('search-address').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('search-btn').click();
+        }
+    });
+    
+    // تحميل الخريطة عند فتح الصفحة
+    window.onload = initMap;
+</script>
+{% endblock %} {% endcomment %}

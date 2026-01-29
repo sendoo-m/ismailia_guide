@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إضافة منتج جديد - لوحة التحكم{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h4 class="mb-0">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                لوحة التحكم
+            </h4>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'vendor_dashboard' %}" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            
+            <a href="{% url 'manage_products' %}" class="nav-link active">
+                <i class="fas fa-box"></i>
+                <span>المنتجات</span>
+            </a>
+            
+            <a href="{% url 'dashboard_settings' %}" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            
+            <hr>
+            
+            <a href="{% url 'logout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل الخروج</span>
+            </a>
+        </nav>
+    </aside>
+    
+    <main class="dashboard-main">
+        <div class="dashboard-topbar">
+            <div>
+                <h2 class="mb-0">
+                    <i class="fas fa-plus me-2"></i>
+                    إضافة منتج جديد
+                </h2>
+                <p class="text-muted mb-0">أضف منتج جديد إلى محلك</p>
+            </div>
+        </div>
+        
+        <!-- Add Product Form -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">المحل *</label>
+                                <select name="business" class="form-select form-select-lg" required>
+                                    <option value="">-- اختر المحل --</option>
+                                    {% for business in businesses %}
+                                    <option value="{{ business.id }}">{{ business.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">اسم المنتج *</label>
+                                <input type="text" 
+                                       name="name" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="مثال: بيتزا مارجريتا"
+                                       required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">الوصف</label>
+                                <textarea name="description" 
+                                          class="form-control" 
+                                          rows="4"
+                                          placeholder="وصف تفصيلي للمنتج..."></textarea>
+                            </div>
+                            
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">السعر (جنيه) *</label>
+                                    <input type="number" 
+                                           name="price" 
+                                           class="form-control form-control-lg" 
+                                           step="0.01"
+                                           placeholder="50.00"
+                                           required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">تكلفة التوصيل (جنيه)</label>
+                                    <input type="number" 
+                                           name="delivery_cost" 
+                                           class="form-control form-control-lg" 
+                                           step="0.01"
+                                           placeholder="10.00"
+                                           value="0">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">الترتيب</label>
+                                <input type="number" 
+                                       name="order" 
+                                       class="form-control" 
+                                       value="0"
+                                       placeholder="0">
+                                <small class="text-muted">الترتيب في القائمة (الأقل يظهر أولاً)</small>
+                            </div>
+                            
+                            <div class="card bg-light border-0 p-3 mb-4">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           name="is_available" 
+                                           id="is_available"
+                                           checked>
+                                    <label class="form-check-label fw-bold" for="is_available">
+                                        المنتج متاح
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           name="has_delivery" 
+                                           id="has_delivery">
+                                    <label class="form-check-label fw-bold" for="has_delivery">
+                                        يتوفر توصيل
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus me-2"></i> إضافة المنتج
+                                </button>
+                                
+                                <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i> إلغاء
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-sidebar {
+        width: 280px;
+        background: white;
+        border-left: 1px solid #dee2e6;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .sidebar-header {
+        padding: 25px 20px;
+        border-bottom: 1px solid #dee2e6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .sidebar-nav {
+        padding: 20px 0;
+    }
+    
+    .sidebar-nav .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+    
+    .sidebar-nav .nav-link.active {
+        background: linear-gradient(90deg, #667eea15 0%, transparent 100%);
+        color: #667eea;
+        font-weight: 600;
+        border-right: 3px solid #667eea;
+    }
+    
+    .sidebar-nav .nav-link i {
+        width: 20px;
+        margin-left: 10px;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+    }
+    
+    .dashboard-topbar {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+    }
+</style>
+{% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إضافة منتج جديد - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .add-product-container {
+        padding: 40px 0;
+        background: #f8f9fa;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        padding: 40px;
+    }
+    
+    .section-title {
+        color: #667eea;
+        font-weight: 700;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 12px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="add-product-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="product-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold mb-0">
+                            <i class="fas fa-plus-circle text-primary"></i>
+                            إضافة منتج جديد
+                        </h2>
+                        <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-right"></i> رجوع
+                        </a>
+                    </div>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- معلومات المنتج -->
+                        <h4 class="section-title">
+                            <i class="fas fa-box"></i>
+                            معلومات المنتج
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">المحل *</label>
+                            <select name="business" class="form-select form-select-lg" required>
+                                <option value="">اختر المحل...</option>
+                                {% for business in businesses %}
+                                <option value="{{ business.id }}">{{ business.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">اسم المنتج/الخدمة *</label>
+                            <input type="text" 
+                                   name="name" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="مثال: شاورما دجاج كبير"
+                                   required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">الوصف *</label>
+                            <textarea name="description" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      placeholder="وصف تفصيلي للمنتج أو الخدمة..."
+                                      required></textarea>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">السعر (جنيه) *</label>
+                                <input type="number" 
+                                       name="price" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="0.00"
+                                       step="0.01"
+                                       min="0"
+                                       required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">تكلفة التوصيل (جنيه)</label>
+                                <input type="number" 
+                                       name="delivery_cost" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="0.00"
+                                       step="0.01"
+                                       min="0">
+                                <small class="text-muted">اتركه فارغاً إذا لم يكن هناك توصيل</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       name="is_available" 
+                                       id="is_available"
+                                       checked>
+                                <label class="form-check-label" for="is_available">
+                                    المنتج متوفر حالياً
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       name="has_delivery" 
+                                       id="has_delivery">
+                                <label class="form-check-label" for="has_delivery">
+                                    يتوفر خدمة التوصيل
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">الترتيب (اختياري)</label>
+                            <input type="number" 
+                                   name="order" 
+                                   class="form-control" 
+                                   placeholder="0"
+                                   value="0">
+                            <small class="text-muted">رقم أصغر = يظهر أولاً</small>
+                        </div>
+                        
+                        <!-- أزرار الحفظ -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-save btn-lg">
+                                <i class="fas fa-save"></i> حفظ المنتج
+                            </button>
+                            <a href="{% url 'manage_products' %}" 
+                               class="btn btn-outline-secondary btn-lg ms-3">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} {% endcomment %}

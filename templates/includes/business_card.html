@@ -1,0 +1,223 @@
+<!-- ========================================
+     🏪 Business Card Component
+     ======================================== -->
+<div class="card business-card h-100 shadow-sm hover-lift">
+    
+    <!-- 🖼️ Business Image -->
+    <div class="position-relative business-image-wrapper">
+        {% if business.logo %}
+            <img src="{{ business.logo.url }}" 
+                 class="card-img-top business-image" 
+                 alt="{{ business.name }}"
+                 loading="lazy">
+        {% else %}
+            <div class="card-img-top business-image-placeholder d-flex align-items-center justify-content-center bg-light">
+                <i class="fas fa-store fa-3x text-muted"></i>
+            </div>
+        {% endif %}
+        
+        <!-- 🏷️ Featured Badge -->
+        {% if business.is_featured %}
+        <span class="badge bg-warning position-absolute top-0 start-0 m-2">
+            <i class="fas fa-star"></i> مميز
+        </span>
+        {% endif %}
+        
+        <!-- ⏰ Status Badge -->
+        {% if business.is_open %}
+        <span class="badge bg-success position-absolute top-0 end-0 m-2">
+            <i class="fas fa-door-open"></i> مفتوح الآن
+        </span>
+        {% else %}
+        <span class="badge bg-danger position-absolute top-0 end-0 m-2">
+            <i class="fas fa-door-closed"></i> مغلق
+        </span>
+        {% endif %}
+    </div>
+    
+    <!-- 📝 Business Details -->
+    <div class="card-body">
+        
+        <!-- Business Name -->
+        <h5 class="card-title mb-2">
+            <a href="{% url 'business_detail' business.slug %}" 
+               class="text-decoration-none text-dark stretched-link">
+                {{ business.name }}
+            </a>
+        </h5>
+        
+        <!-- Category -->
+        {% if business.category %}
+        <p class="text-muted small mb-2">
+            <i class="fas fa-tag text-primary"></i>
+            <a href="{% url 'category_detail' business.category.slug %}" 
+               class="text-muted text-decoration-none">
+                {{ business.category.name }}
+            </a>
+        </p>
+        {% endif %}
+        
+        <!-- Rating -->
+        {% if business.rating %}
+        <div class="mb-2">
+            <span class="text-warning">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= business.rating %}
+                        <i class="fas fa-star"></i>
+                    {% else %}
+                        <i class="far fa-star"></i>
+                    {% endif %}
+                {% endfor %}
+            </span>
+            <span class="text-muted small">
+                ({{ business.rating }})
+                {% if business.reviews_count %}
+                    - {{ business.reviews_count }} تقييم
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+        
+        <!-- Description -->
+        {% if business.description %}
+        <p class="card-text text-muted small mb-3">
+            {{ business.description|truncatewords:15 }}
+        </p>
+        {% endif %}
+        
+        <!-- Location -->
+        {% if business.address or business.district %}
+        <p class="text-muted small mb-2">
+            <i class="fas fa-map-marker-alt text-danger"></i>
+            {% if business.district %}
+                {{ business.district.name }}
+                {% if business.governorate %}
+                    - {{ business.governorate.name }}
+                {% endif %}
+            {% elif business.address %}
+                {{ business.address|truncatewords:5 }}
+            {% endif %}
+        </p>
+        {% endif %}
+        
+        <!-- Contact Info -->
+        <div class="d-flex gap-2 flex-wrap">
+            {% if business.phone %}
+            <a href="tel:{{ business.phone }}" 
+               class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-phone"></i>
+            </a>
+            {% endif %}
+            
+            {% if business.whatsapp %}
+            <a href="https://wa.me/{{ business.whatsapp }}" 
+               target="_blank"
+               class="btn btn-sm btn-outline-success">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+            {% endif %}
+            
+            {% if business.website %}
+            <a href="{{ business.website }}" 
+               target="_blank"
+               class="btn btn-sm btn-outline-info">
+                <i class="fas fa-globe"></i>
+            </a>
+            {% endif %}
+        </div>
+        
+    </div>
+    
+    <!-- 🏷️ Card Footer -->
+    <div class="card-footer bg-transparent border-top-0">
+        <small class="text-muted">
+            <i class="fas fa-eye"></i>
+            {{ business.views_count|default:0 }} مشاهدة
+        </small>
+    </div>
+    
+</div>
+
+
+<!-- ========================================
+     🎨 Business Card Styles
+     ======================================== -->
+<style>
+    /* ============= Card Container ============= */
+    .business-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .business-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* ============= Image Styling ============= */
+    .business-image-wrapper {
+        height: 200px;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+    
+    .business-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .business-card:hover .business-image {
+        transform: scale(1.1);
+    }
+    
+    .business-image-placeholder {
+        height: 200px;
+    }
+    
+    /* ============= Badge Styling ============= */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.4em 0.8em;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* ============= Card Title ============= */
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    
+    .card-title a:hover {
+        color: var(--bs-primary) !important;
+    }
+    
+    /* ============= Rating Stars ============= */
+    .text-warning i {
+        font-size: 0.9rem;
+    }
+    
+    /* ============= Button Styling ============= */
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-sm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* ============= Responsive ============= */
+    @media (max-width: 768px) {
+        .business-image-wrapper {
+            height: 180px;
+        }
+    }
+</style>

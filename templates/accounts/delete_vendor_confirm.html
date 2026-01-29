@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}حذف صاحب محل - {{ vendor.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        <!-- ========================================
+             SIDEBAR - القائمة الجانبية
+             ======================================== -->
+        {% include 'includes/admin_sidebar.html' %}
+        
+        <!-- ========================================
+             MAIN CONTENT - المحتوى الرئيسي
+             ======================================== -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">لوحة التحكم</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_settings' %}">الإعدادات</a></li>
+            <li class="breadcrumb-item active">حذف صاحب محل</li>
+        </ol>
+    </nav>
+
+    <!-- Confirmation Card -->
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        تأكيد الحذف
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه!
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-times fa-4x text-danger mb-3"></i>
+                        <h4>هل أنت متأكد من حذف صاحب المحل؟</h4>
+                        <p class="text-muted mb-4">
+                            <strong>{{ vendor.get_full_name }}</strong>
+                            <br>
+                            <small>({{ vendor.username }})</small>
+                        </p>
+                    </div>
+
+                    <!-- معلومات إضافية -->
+                    <div class="border rounded p-3 mb-4 bg-light">
+                        <h6 class="mb-3">
+                            <i class="fas fa-info-circle me-1"></i>
+                            معلومات الحساب:
+                        </h6>
+                        <ul class="mb-0">
+                            <li><strong>البريد الإلكتروني:</strong> {{ vendor.email }}</li>
+                            <li><strong>عدد المحلات:</strong> 
+                                <span class="badge bg-primary">{{ vendor.businesses.count }}</span>
+                            </li>
+                            <li><strong>تاريخ التسجيل:</strong> {{ vendor.date_joined|date:"Y/m/d" }}</li>
+                            <li><strong>الحالة:</strong> 
+                                {% if vendor.is_active %}
+                                    <span class="badge bg-success">نشط</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">غير نشط</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+
+                    {% if vendor.businesses.count > 0 %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>تنبيه:</strong> 
+                        سيتم حذف <strong>{{ vendor.businesses.count }}</strong> محل مرتبط بهذا الحساب!
+                    </div>
+                    {% endif %}
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between gap-3">
+                            <a href="{% url 'dashboard_settings' %}" class="btn btn-outline-secondary flex-fill">
+                                <i class="fas fa-arrow-right me-1"></i>إلغاء
+                            </a>
+                            <button type="submit" class="btn btn-danger flex-fill">
+                                <i class="fas fa-trash me-1"></i>تأكيد الحذف
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

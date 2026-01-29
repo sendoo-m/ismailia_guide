@@ -1,0 +1,996 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}لوحة التحكم - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+
+<div class="vendor-dashboard">
+    <!-- Sidebar -->
+    {% include 'includes/vendor_sidebar.html' %}
+    
+    <!-- Main Content -->
+    <div class="dashboard-content">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1>مرحباً، {{ user.get_full_name|default:user.username }} 👋</h1>
+                <p class="text-muted">إليك ملخص نشاطك اليوم</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'home' %}" class="btn btn-outline" target="_blank">
+                    <i class="fas fa-globe"></i> عرض الموقع
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> إضافة محل
+                </a>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+            <button type="button" class="alert-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-box stat-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_businesses }}</h3>
+                    <p>محلاتي</p>
+                    <span class="stat-badge">{{ active_businesses }} نشط</span>
+                </div>
+            </div>
+
+            <div class="stat-box stat-success">
+                <div class="stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_views|default:0 }}</h3>
+                    <p>المشاهدات</p>
+                </div>
+            </div>
+
+            <div class="stat-box stat-info">
+                <div class="stat-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_products|default:0 }}</h3>
+                    <p>المنتجات</p>
+                </div>
+            </div>
+
+            <div class="stat-box stat-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_reviews|default:0 }}</h3>
+                    <p>التقييمات</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="content-grid">
+            <!-- Businesses Section -->
+            <div class="section businesses-section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-store"></i>
+                        محلاتي ({{ total_businesses }})
+                    </h2>
+                    <div class="filter-tabs">
+                        <button class="tab active" data-filter="all">الكل</button>
+                        <button class="tab" data-filter="active">نشط</button>
+                        <button class="tab" data-filter="pending">معلق</button>
+                    </div>
+                </div>
+
+                <div class="businesses-list">
+                    {% for business in businesses %}
+                    <div class="business-card" data-status="{% if business.is_active %}active{% else %}pending{% endif %}">
+                        <div class="business-header">
+                            {% if business.logo %}
+                            <img src="{{ business.logo.url }}" alt="{{ business.name }}" class="business-img">
+                            {% else %}
+                            <div class="business-img business-placeholder">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="business-info">
+                                <h3>
+                                    {{ business.name }}
+                                    {% if business.is_verified %}
+                                    <i class="fas fa-check-circle verified"></i>
+                                    {% endif %}
+                                </h3>
+                                <p>
+                                    <i class="fas fa-tag"></i> {{ business.category.name }}
+                                    <span>•</span>
+                                    <i class="fas fa-map-marker-alt"></i> {{ business.district.name }}
+                                </p>
+                            </div>
+
+                            <div class="business-badges">
+                                {% if business.is_active %}
+                                <span class="badge badge-success">نشط</span>
+                                {% else %}
+                                <span class="badge badge-warning">معلق</span>
+                                {% endif %}
+                                {% if business.is_featured %}
+                                <span class="badge badge-primary">مميز</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="business-stats">
+                            <div class="mini-stat">
+                                <i class="fas fa-eye"></i>
+                                {{ business.view_count|default:0 }}
+                            </div>
+                            <div class="mini-stat">
+                                <i class="fas fa-star"></i>
+                                {{ business.total_reviews|default:0 }}
+                            </div>
+                            <div class="mini-stat">
+                                <i class="fas fa-box"></i>
+                                {{ business.products.count|default:0 }}
+                            </div>
+                        </div>
+
+                        <div class="business-actions">
+                            <a href="{% url 'business_detail' business.slug %}" class="btn-icon" target="_blank" title="عرض">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'edit_business' business.pk %}" class="btn-icon" title="تعديل">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="btn-icon btn-danger" onclick="confirmDelete('{{ business.name }}', '{% url 'delete_business' business.pk %}')" title="حذف">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-store-slash"></i>
+                        <h3>لا توجد محلات</h3>
+                        <p>ابدأ بإضافة محلك الأول</p>
+                        <a href="{% url 'register' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> إضافة محل
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Products Table -->
+                {% if latest_products %}
+                <div class="section-divider"></div>
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-box"></i>
+                        أحدث المنتجات
+                    </h2>
+                    <a href="{% url 'manage_products' %}" class="link">عرض الكل →</a>
+                </div>
+
+                <div class="products-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المنتج</th>
+                                <th>المحل</th>
+                                <th>السعر</th>
+                                <th>الحالة</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in latest_products %}
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        {% if product.images.first %}
+                                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                        {% else %}
+                                        <div class="product-placeholder">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                        {% endif %}
+                                        <strong>{{ product.name|truncatewords:5 }}</strong>
+                                    </div>
+                                </td>
+                                <td>{{ product.business.name }}</td>
+                                <td><strong>{{ product.price }} ج</strong></td>
+                                <td>
+                                    {% if product.is_available %}
+                                    <span class="badge badge-success">متاح</span>
+                                    {% else %}
+                                    <span class="badge badge-secondary">غير متاح</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'edit_product' product.pk %}" class="btn-icon">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar-widgets">
+                <!-- Quick Actions -->
+                <div class="widget">
+                    <h3>
+                        <i class="fas fa-bolt"></i>
+                        إجراءات سريعة
+                    </h3>
+                    <div class="quick-actions">
+                        <a href="{% url 'add_product' %}" class="quick-action">
+                            <i class="fas fa-plus"></i>
+                            <span>إضافة منتج</span>
+                        </a>
+                        <a href="{% url 'manage_products' %}" class="quick-action">
+                            <i class="fas fa-box"></i>
+                            <span>إدارة المنتجات</span>
+                        </a>
+                        <a href="{% url 'import_products' %}" class="quick-action">
+                            <i class="fas fa-file-import"></i>
+                            <span>استيراد Excel</span>
+                        </a>
+                        <a href="{% url 'reports' %}" class="quick-action">
+                            <i class="fas fa-chart-line"></i>
+                            <span>التقارير</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Upgrade Card -->
+                <div class="widget upgrade-widget">
+                    <div class="upgrade-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3>ارتقِ بمحلك</h3>
+                    <p>احصل على مزايا حصرية</p>
+                    <ul>
+                        <li><i class="fas fa-check"></i> ظهور مميز</li>
+                        <li><i class="fas fa-check"></i> منتجات غير محدودة</li>
+                        <li><i class="fas fa-check"></i> علامة التوثيق</li>
+                    </ul>
+                    <a href="{% url 'upgrade_subscription_page' %}" class="btn btn-light">
+                        عرض الباقات
+                    </a>
+                </div>
+
+                <!-- Tips -->
+                <div class="widget">
+                    <h3>
+                        <i class="fas fa-lightbulb"></i>
+                        نصائح للنجاح
+                    </h3>
+                    <div class="tips-list">
+                        <div class="tip">
+                            <i class="fas fa-camera"></i>
+                            <div>
+                                <strong>أضف صور واضحة</strong>
+                                <p>الصور الجيدة تزيد الثقة</p>
+                            </div>
+                        </div>
+                        <div class="tip">
+                            <i class="fas fa-pen"></i>
+                            <div>
+                                <strong>وصف تفصيلي</strong>
+                                <p>اكتب وصف واضح للمنتجات</p>
+                            </div>
+                        </div>
+                        <div class="tip">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <strong>حدّث البيانات</strong>
+                                <p>راجع الأسعار وساعات العمل</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .vendor-dashboard {
+        display: flex;
+        min-height: 100vh;
+        background: #f5f7fa;
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .dashboard-content {
+        flex: 1;
+        padding: 2rem;
+        max-width: 100%;
+    }
+
+    /* ========== Header ========== */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    /* ========== Buttons ========== */
+    .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-outline {
+        background: white;
+        color: #4a5568;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-outline:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .btn-light {
+        background: white;
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f7fafc;
+        color: #4a5568;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #f56565 !important;
+    }
+
+    /* ========== Alerts ========== */
+    .alert {
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        position: relative;
+    }
+
+    .alert-success {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+    .alert-close {
+        position: absolute;
+        left: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.5;
+    }
+
+    .alert-close:hover {
+        opacity: 1;
+    }
+
+    /* ========== Stats Grid ========== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-primary .stat-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .stat-success .stat-icon {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .stat-info .stat-icon {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .stat-warning .stat-icon {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .stat-info h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-info p {
+        color: #718096;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-badge {
+        display: inline-block;
+        padding: 0.25rem 0.625rem;
+        background: #f7fafc;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        color: #4a5568;
+    }
+
+    /* ========== Content Grid ========== */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+    }
+
+    /* ========== Section ========== */
+    .section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.125rem;
+        color: #1a202c;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 1.5rem 0;
+    }
+
+    /* ========== Filter Tabs ========== */
+    .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .tab {
+        padding: 0.5rem 1rem;
+        border: none;
+        background: #f7fafc;
+        color: #718096;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .tab.active,
+    .tab:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    /* ========== Business Card ========== */
+    .business-card {
+        padding: 1.25rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+    }
+
+    .business-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+
+    .business-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .business-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .business-placeholder {
+        background: #f7fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e0;
+        font-size: 1.5rem;
+    }
+
+    .business-info {
+        flex: 1;
+    }
+
+    .business-info h3 {
+        font-size: 1rem;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .verified {
+        color: #667eea;
+        font-size: 0.875rem;
+    }
+
+    .business-info p {
+        font-size: 0.8125rem;
+        color: #718096;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .business-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .badge {
+        padding: 0.25rem 0.625rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-primary {
+        background: #ddd6fe;
+        color: #5b21b6;
+    }
+
+    .badge-secondary {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .business-stats {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .mini-stat {
+        padding: 0.375rem 0.75rem;
+        background: #f7fafc;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        color: #4a5568;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .business-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    /* ========== Products Table ========== */
+    .products-table {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #f7fafc;
+    }
+
+    th {
+        padding: 0.75rem;
+        text-align: right;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    td {
+        padding: 0.875rem 0.75rem;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.875rem;
+        color: #1a202c;
+    }
+
+    .product-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .product-cell img,
+    .product-placeholder {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+
+    .product-placeholder {
+        background: #f7fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e0;
+    }
+
+    /* ========== Sidebar Widgets ========== */
+    .sidebar-widgets {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .widget {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .widget h3 {
+        font-size: 1rem;
+        color: #1a202c;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quick-actions {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .quick-action {
+        padding: 0.75rem;
+        border-radius: 8px;
+        background: #f7fafc;
+        color: #4a5568;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .quick-action:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    /* ========== Upgrade Widget ========== */
+    .upgrade-widget {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        text-align: center;
+    }
+
+    .upgrade-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    .upgrade-widget h3 {
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .upgrade-widget p {
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .upgrade-widget ul {
+        list-style: none;
+        text-align: right;
+        margin-bottom: 1.5rem;
+    }
+
+    .upgrade-widget li {
+        padding: 0.375rem 0;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* ========== Tips ========== */
+    .tips-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .tip {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .tip i {
+        width: 36px;
+        height: 36px;
+        background: #f7fafc;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #667eea;
+        flex-shrink: 0;
+    }
+
+    .tip strong {
+        display: block;
+        font-size: 0.875rem;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+    }
+
+    .tip p {
+        font-size: 0.8125rem;
+        color: #718096;
+        margin: 0;
+    }
+
+    /* ========== Empty State ========== */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #cbd5e0;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #718096;
+        margin-bottom: 1.5rem;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar-widgets {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            flex-direction: row;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-content {
+            padding: 1rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .sidebar-widgets {
+            grid-template-columns: 1fr;
+        }
+
+        .business-header {
+            flex-wrap: wrap;
+        }
+
+        .business-badges {
+            width: 100%;
+            flex-direction: row;
+            justify-content: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const filter = this.dataset.filter;
+        document.querySelectorAll('.business-card').forEach(card => {
+            if (filter === 'all' || card.dataset.status === filter) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Confirm Delete
+function confirmDelete(name, url) {
+    if (confirm(`هل أنت متأكد من حذف "${name}"؟\n\nسيتم حذف جميع البيانات المرتبطة!`)) {
+        window.location.href = url;
+    }
+}
+
+// Tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(el => new bootstrap.Tooltip(el));
+});
+</script>
+{% endblock %}

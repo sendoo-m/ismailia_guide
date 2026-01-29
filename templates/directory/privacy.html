@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}سياسة الخصوصية - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <h1 class="fw-bold mb-4 text-primary">
+                        <i class="fas fa-shield-alt"></i>
+                        سياسة الخصوصية
+                    </h1>
+                    
+                    <p class="text-muted mb-4">
+                        <strong>آخر تحديث:</strong> {{ current_date|date:"d M Y" }}
+                    </p>
+                    
+                    <hr class="my-4">
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">1. المقدمة</h3>
+                        <p class="text-muted">
+                            نحن في <strong>دليل الإسماعيلية</strong> نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. 
+                            توضح هذه السياسة كيفية جمع واستخدام وحماية المعلومات التي تقدمها لنا.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">2. المعلومات التي نجمعها</h3>
+                        <p class="text-muted">نقوم بجمع المعلومات التالية:</p>
+                        <ul class="text-muted">
+                            <li><strong>معلومات التسجيل:</strong> الاسم، البريد الإلكتروني، رقم الهاتف</li>
+                            <li><strong>معلومات المحل:</strong> اسم المحل، العنوان، الفئة، الوصف</li>
+                            <li><strong>معلومات الاستخدام:</strong> سجل التصفح، التفاعلات مع المنصة</li>
+                            <li><strong>معلومات تقنية:</strong> عنوان IP، نوع المتصفح، نظام التشغيل</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">3. كيفية استخدام المعلومات</h3>
+                        <p class="text-muted">نستخدم المعلومات المجمعة للأغراض التالية:</p>
+                        <ul class="text-muted">
+                            <li>تقديم وتحسين خدماتنا</li>
+                            <li>إدارة حسابات المستخدمين وأصحاب المحلات</li>
+                            <li>التواصل معك بخصوص الخدمة والتحديثات</li>
+                            <li>تحليل استخدام المنصة لتحسين الأداء</li>
+                            <li>حماية المنصة من الاحتيال والانتهاكات</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">4. مشاركة المعلومات</h3>
+                        <p class="text-muted">
+                            نحن <strong>لا نبيع أو نؤجر</strong> معلوماتك الشخصية لأطراف ثالثة. 
+                            قد نشارك معلومات محدودة في الحالات التالية:
+                        </p>
+                        <ul class="text-muted">
+                            <li>عند الحصول على موافقتك الصريحة</li>
+                            <li>مع مزودي الخدمات الذين يساعدوننا في تشغيل المنصة</li>
+                            <li>عند الطلب القانوني من السلطات المختصة</li>
+                            <li>لحماية حقوقنا وسلامة المستخدمين</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">5. أمن البيانات</h3>
+                        <p class="text-muted">
+                            نتخذ إجراءات أمنية مناسبة لحماية بياناتك من الوصول غير المصرح به أو التعديل أو الإفصاح أو الإتلاف. 
+                            نستخدم تقنيات التشفير والجدران النارية وأنظمة المصادقة الآمنة.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">6. ملفات تعريف الارتباط (Cookies)</h3>
+                        <p class="text-muted">
+                            نستخدم ملفات تعريف الارتباط لتحسين تجربتك على المنصة. يمكنك تعطيلها من خلال إعدادات متصفحك، 
+                            لكن قد يؤثر ذلك على بعض وظائف الموقع.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">7. حقوقك</h3>
+                        <p class="text-muted">لديك الحق في:</p>
+                        <ul class="text-muted">
+                            <li>الوصول إلى بياناتك الشخصية</li>
+                            <li>تصحيح أو تحديث بياناتك</li>
+                            <li>حذف حسابك وبياناتك</li>
+                            <li>الاعتراض على معالجة بياناتك</li>
+                            <li>طلب نسخة من بياناتك</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">8. التغييرات على هذه السياسة</h3>
+                        <p class="text-muted">
+                            قد نقوم بتحديث سياسة الخصوصية من وقت لآخر. سيتم إعلامك بأي تغييرات جوهرية عبر البريد الإلكتروني 
+                            أو من خلال إشعار بارز على المنصة.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">9. اتصل بنا</h3>
+                        <p class="text-muted">
+                            إذا كان لديك أي أسئلة حول سياسة الخصوصية، يرجى التواصل معنا:
+                        </p>
+                        <ul class="text-muted">
+                            <li><i class="fas fa-envelope text-primary"></i> info@ismailia-guide.com</li>
+                            <li><i class="fas fa-phone text-primary"></i> 01234567890</li>
+                        </ul>
+                    </section>
+                    
+                    <div class="alert alert-info mt-5">
+                        <i class="fas fa-info-circle"></i>
+                        باستخدامك لمنصة <strong>دليل الإسماعيلية</strong>، فإنك توافق على سياسة الخصوصية هذه.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

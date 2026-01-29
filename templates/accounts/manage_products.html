@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إدارة المنتجات - لوحة التحكم{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h4 class="mb-0">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                لوحة التحكم
+            </h4>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'vendor_dashboard' %}" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            
+            <a href="{% url 'manage_products' %}" class="nav-link active">
+                <i class="fas fa-box"></i>
+                <span>المنتجات</span>
+                <span class="badge bg-primary">{{ total_count }}</span>
+            </a>
+            
+            <a href="{% url 'reports' %}" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>التقارير</span>
+            </a>
+            
+            <a href="{% url 'dashboard_settings' %}" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            
+            <hr>
+            
+            <a href="{% url 'home' %}" class="nav-link">
+                <i class="fas fa-globe"></i>
+                <span>عرض الموقع</span>
+            </a>
+            
+            <a href="{% url 'logout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل الخروج</span>
+            </a>
+        </nav>
+    </aside>
+    
+    <main class="dashboard-main">
+        <div class="dashboard-topbar">
+            <div>
+                <h2 class="mb-0">
+                    <i class="fas fa-box me-2"></i>
+                    إدارة المنتجات
+                </h2>
+                <p class="text-muted mb-0">إجمالي: {{ total_count }} منتج</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'add_product' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i> إضافة منتج
+                </a>
+                <a href="{% url 'import_products' %}" class="btn btn-success">
+                    <i class="fas fa-file-import me-2"></i> استيراد CSV
+                </a>
+            </div>
+        </div>
+        
+        <!-- Products Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>المنتج</th>
+                                <th>المحل</th>
+                                <th>السعر</th>
+                                <th>التوصيل</th>
+                                <th>الحالة</th>
+                                <th>التاريخ</th>
+                                <th style="width: 150px;">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <strong>{{ product.name }}</strong>
+                                    {% if product.description %}
+                                    <br>
+                                    <small class="text-muted">{{ product.description|truncatewords:8 }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'business_detail' product.business.slug %}" 
+                                       class="text-decoration-none"
+                                       target="_blank">
+                                        {{ product.business.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <strong class="text-primary">{{ product.price }} جنيه</strong>
+                                </td>
+                                <td>
+                                    {% if product.has_delivery %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-truck me-1"></i>
+                                        {{ product.delivery_cost }} جنيه
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">لا يوجد</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if product.is_available %}
+                                    <span class="badge bg-success">متاح</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">غير متاح</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ product.created_at|date:"Y/m/d" }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'edit_product' product.pk %}" 
+                                           class="btn btn-outline-primary"
+                                           title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'delete_product' product.pk %}" 
+                                           class="btn btn-outline-danger"
+                                           onclick="return confirm('هل أنت متأكد من حذف هذا المنتج؟')"
+                                           title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-5">
+                                    <i class="fas fa-box-open fs-1 text-muted mb-3 d-block"></i>
+                                    <p class="text-muted mb-3">لا توجد منتجات بعد</p>
+                                    <a href="{% url 'add_product' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i> إضافة أول منتج
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-sidebar {
+        width: 280px;
+        background: white;
+        border-left: 1px solid #dee2e6;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .sidebar-header {
+        padding: 25px 20px;
+        border-bottom: 1px solid #dee2e6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .sidebar-nav {
+        padding: 20px 0;
+    }
+    
+    .sidebar-nav .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+    
+    .sidebar-nav .nav-link.active {
+        background: linear-gradient(90deg, #667eea15 0%, transparent 100%);
+        color: #667eea;
+        font-weight: 600;
+        border-right: 3px solid #667eea;
+    }
+    
+    .sidebar-nav .nav-link i {
+        width: 20px;
+        margin-left: 10px;
+    }
+    
+    .sidebar-nav .nav-link .badge {
+        margin-right: auto;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+    }
+    
+    .dashboard-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+        
+        .dashboard-topbar {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}

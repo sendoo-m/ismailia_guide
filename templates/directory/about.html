@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}عن دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 50px;
+    }
+    
+    .about-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .feature-box {
+        text-align: center;
+        padding: 30px;
+        border-radius: 15px;
+        background: #f8f9fa;
+        transition: all 0.3s;
+        height: 100%;
+    }
+    
+    .feature-box:hover {
+        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .stats-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+    }
+    
+    .stats-box h2 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .timeline-item {
+        padding: 20px;
+        border-right: 3px solid #667eea;
+        position: relative;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        width: 20px;
+        height: 20px;
+        background: #667eea;
+        border-radius: 50%;
+        position: absolute;
+        right: -12px;
+        top: 25px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="about-header">
+    <div class="container text-center">
+        <h1 class="fw-bold mb-3">
+            <i class="fas fa-info-circle"></i>
+            عن دليل الإسماعيلية
+        </h1>
+        <p class="lead">منصتك الموثوقة لاكتشاف أفضل المحلات والخدمات في الإسماعيلية</p>
+    </div>
+</section>
+
+<div class="container pb-5">
+    <!-- من نحن -->
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4">
+            <div class="about-card h-100">
+                <h2 class="fw-bold mb-4">
+                    <i class="fas fa-users text-primary"></i>
+                    من نحن؟
+                </h2>
+                <p class="lead text-muted mb-4">
+                    دليل الإسماعيلية هو أول وأشمل دليل إلكتروني للمحلات التجارية والخدمات في محافظة الإسماعيلية.
+                </p>
+                <p class="text-muted">
+                    نساعد أصحاب المحلات في الوصول لآلاف العملاء المحتملين، ونساعد المستخدمين في العثور على أفضل الخدمات والمنتجات بسهولة وسرعة.
+                </p>
+                <p class="text-muted mb-0">
+                    نؤمن بأهمية دعم الاقتصاد المحلي وتسهيل التواصل بين التجار والمستهلكين من خلال منصة رقمية حديثة وسهلة الاستخدام.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="about-card h-100">
+                <h2 class="fw-bold mb-4">
+                    <i class="fas fa-bullseye text-primary"></i>
+                    رؤيتنا وأهدافنا
+                </h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>الشمولية:</strong> تغطية جميع المحلات والخدمات في الإسماعيلية
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>السهولة:</strong> تجربة بحث بسيطة وسريعة للمستخدمين
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>المصداقية:</strong> معلومات دقيقة وموثوقة عن المحلات
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>الدعم:</strong> مساعدة أصحاب المحلات في النمو والانتشار
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>الابتكار:</strong> استخدام أحدث التقنيات لتحسين الخدمة
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- إحصائيات -->
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <h2 class="text-center fw-bold mb-5">
+                <i class="fas fa-chart-line text-primary"></i>
+                أرقامنا
+            </h2>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="stats-box">
+                <i class="fas fa-store fs-1 mb-3"></i>
+                <h2>500+</h2>
+                <p class="mb-0">محل مسجل</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="stats-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <i class="fas fa-users fs-1 mb-3"></i>
+                <h2>10K+</h2>
+                <p class="mb-0">مستخدم نشط</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="stats-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <i class="fas fa-box fs-1 mb-3"></i>
+                <h2>5K+</h2>
+                <p class="mb-0">منتج وخدمة</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="stats-box" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <i class="fas fa-star fs-1 mb-3"></i>
+                <h2>2K+</h2>
+                <p class="mb-0">تقييم</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- مميزاتنا -->
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <h2 class="text-center fw-bold mb-5">
+                <i class="fas fa-gem text-primary"></i>
+                لماذا دليل الإسماعيلية؟
+            </h2>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h5 class="fw-bold mb-3">بحث ذكي</h5>
+                <p class="text-muted mb-0">
+                    ابحث عن أي محل أو خدمة بسهولة مع فلاتر متقدمة حسب الفئة والموقع
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h5 class="fw-bold mb-3">خرائط تفاعلية</h5>
+                <p class="text-muted mb-0">
+                    اعرض موقع أي محل على الخريطة واحصل على الاتجاهات بسهولة
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h5 class="fw-bold mb-3">تقييمات موثوقة</h5>
+                <p class="text-muted mb-0">
+                    اقرأ تقييمات العملاء الحقيقية قبل اتخاذ قرار الشراء
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h5 class="fw-bold mb-3">تواصل مباشر</h5>
+                <p class="text-muted mb-0">
+                    اتصل أو أرسل رسالة واتساب مباشرة للمحل من خلال المنصة
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h5 class="fw-bold mb-3">عروض وخصومات</h5>
+                <p class="text-muted mb-0">
+                    اطلع على أحدث العروض والخصومات من المحلات المفضلة لديك
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h5 class="fw-bold mb-3">سهل الاستخدام</h5>
+                <p class="text-muted mb-0">
+                    واجهة بسيطة وسريعة تعمل على جميع الأجهزة
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Call to Action -->
+    <div class="row">
+        <div class="col-12">
+            <div class="about-card text-center" 
+                 style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border: 3px solid #667eea;">
+                <h3 class="fw-bold mb-3">هل لديك محل في الإسماعيلية؟</h3>
+                <p class="lead text-muted mb-4">
+                    انضم إلى مئات المحلات المسجلة واحصل على عملاء جدد كل يوم!
+                </p>
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle"></i> سجل محلك الآن مجاناً
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

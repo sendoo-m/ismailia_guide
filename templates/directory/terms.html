@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}الشروط والأحكام - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <h1 class="fw-bold mb-4 text-primary">
+                        <i class="fas fa-file-contract"></i>
+                        الشروط والأحكام
+                    </h1>
+                    
+                    <p class="text-muted mb-4">
+                        <strong>آخر تحديث:</strong> {{ current_date|date:"d M Y" }}
+                    </p>
+                    
+                    <hr class="my-4">
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">1. قبول الشروط</h3>
+                        <p class="text-muted">
+                            باستخدامك لمنصة <strong>دليل الإسماعيلية</strong>، فإنك توافق على الالتزام بهذه الشروط والأحكام. 
+                            إذا كنت لا توافق على أي جزء من هذه الشروط، يرجى عدم استخدام المنصة.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">2. استخدام المنصة</h3>
+                        <p class="text-muted">يحق لك استخدام المنصة للأغراض التالية:</p>
+                        <ul class="text-muted">
+                            <li>البحث عن المحلات والخدمات</li>
+                            <li>الاطلاع على المعلومات والتقييمات</li>
+                            <li>تسجيل محلك التجاري (لأصحاب المحلات)</li>
+                            <li>إضافة التقييمات والمراجعات</li>
+                        </ul>
+                        <p class="text-muted">
+                            <strong>يُمنع استخدام المنصة في:</strong> الأنشطة غير القانونية، نشر محتوى مسيء أو مضلل، 
+                            انتحال الشخصية، أو أي نشاط يضر بالمنصة أو المستخدمين.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">3. التسجيل والحسابات</h3>
+                        <ul class="text-muted">
+                            <li>يجب تقديم معلومات صحيحة ودقيقة عند التسجيل</li>
+                            <li>أنت مسؤول عن الحفاظ على سرية كلمة المرور</li>
+                            <li>أنت مسؤول عن جميع الأنشطة التي تتم من خلال حسابك</li>
+                            <li>يحق لنا تعطيل أو حذف الحسابات المخالفة</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">4. محتوى المستخدم</h3>
+                        <p class="text-muted">
+                            عند نشر محتوى على المنصة (تقييمات، تعليقات، صور)، فإنك تمنحنا حق استخدامه وعرضه على المنصة. 
+                            أنت تضمن أن لديك الحق في نشر هذا المحتوى وأنه لا يخالف حقوق الملكية الفكرية لأي طرف ثالث.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">5. الاشتراكات والمدفوعات</h3>
+                        <ul class="text-muted">
+                            <li>جميع الأسعار المعروضة بالجنيه المصري وشاملة الضرائب</li>
+                            <li>الاشتراكات غير قابلة للاسترداد ما لم ينص القانون على خلاف ذلك</li>
+                            <li>يتم تجديد الاشتراك تلقائياً ما لم تقم بإلغائه</li>
+                            <li>نحتفظ بالحق في تغيير الأسعار مع إشعار مسبق</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">6. مسؤولية أصحاب المحلات</h3>
+                        <p class="text-muted">أصحاب المحلات مسؤولون عن:</p>
+                        <ul class="text-muted">
+                            <li>دقة المعلومات المقدمة عن محلاتهم</li>
+                            <li>تحديث البيانات بانتظام (الأسعار، ساعات العمل، إلخ)</li>
+                            <li>التعامل المباشر مع العملاء</li>
+                            <li>الالتزام بالقوانين واللوائح المحلية</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">7. إخلاء المسؤولية</h3>
+                        <p class="text-muted">
+                            <strong>دليل الإسماعيلية</strong> هو مجرد منصة للتواصل بين أصحاب المحلات والعملاء. 
+                            نحن لسنا مسؤولين عن:
+                        </p>
+                        <ul class="text-muted">
+                            <li>جودة المنتجات أو الخدمات المقدمة</li>
+                            <li>دقة المعلومات التي ينشرها المستخدمون</li>
+                            <li>النزاعات بين المستخدمين وأصحاب المحلات</li>
+                            <li>أي أضرار مباشرة أو غير مباشرة ناتجة عن استخدام المنصة</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">8. الملكية الفكرية</h3>
+                        <p class="text-muted">
+                            جميع حقوق الملكية الفكرية للمنصة (التصميم، الشعار، المحتوى الأصلي) محفوظة لـ 
+                            <strong>دليل الإسماعيلية</strong>. يُمنع نسخ أو استخدام أي جزء من المنصة دون إذن كتابي.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">9. التعديلات</h3>
+                        <p class="text-muted">
+                            نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سيتم إشعارك بأي تغييرات جوهرية. 
+                            استمرارك في استخدام المنصة بعد التعديلات يعني قبولك للشروط المحدثة.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">10. القانون الحاكم</h3>
+                        <p class="text-muted">
+                            تخضع هذه الشروط لقوانين جمهورية مصر العربية. أي نزاع ينشأ عن استخدام المنصة 
+                            يخضع للاختصاص القضائي لمحاكم الإسماعيلية.
+                        </p>
+                    </section>
+                    
+                    <section class="mb-4">
+                        <h3 class="fw-bold mb-3">11. اتصل بنا</h3>
+                        <p class="text-muted">
+                            لأي استفسارات حول الشروط والأحكام، يرجى التواصل معنا:
+                        </p>
+                        <ul class="text-muted">
+                            <li><i class="fas fa-envelope text-primary"></i> info@ismailia-guide.com</li>
+                            <li><i class="fas fa-phone text-primary"></i> 01234567890</li>
+                        </ul>
+                    </section>
+                    
+                    <div class="alert alert-warning mt-5">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        باستخدامك لمنصة <strong>دليل الإسماعيلية</strong>، فإنك توافق على هذه الشروط والأحكام.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

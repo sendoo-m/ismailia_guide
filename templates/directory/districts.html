@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - {{ site_name }}{% endblock %}
+
+{% block meta_description %}{{ page_description }}{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="districts-hero py-5 bg-gradient">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold text-white mb-3">
+            <i class="fas fa-map-marked-alt me-3"></i>
+            جميع الأحياء
+        </h1>
+        <p class="lead text-white-50 mb-0">
+            تصفح المحلات والخدمات حسب الحي
+        </p>
+    </div>
+</section>
+
+<!-- Filter Section -->
+<section class="filter-section py-4 bg-white border-bottom">
+    <div class="container">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label">
+                    <i class="fas fa-city me-1"></i>
+                    فلترة بالمحافظة
+                </label>
+                <select name="governorate" class="form-select form-select-lg" onchange="this.form.submit()">
+                    <option value="">جميع المحافظات</option>
+                    {% for gov in governorates %}
+                    <option value="{{ gov.slug }}" {% if selected_governorate == gov %}selected{% endif %}>
+                        {{ gov.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                {% if selected_governorate %}
+                <a href="{% url 'districts' %}" class="btn btn-outline-secondary w-100 btn-lg">
+                    <i class="fas fa-times me-2"></i>
+                    إزالة الفلتر
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Districts Grid -->
+<section class="districts-section py-5">
+    <div class="container">
+        {% if selected_governorate %}
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-filter me-2"></i>
+            عرض أحياء: <strong>{{ selected_governorate.name }}</strong>
+        </div>
+        {% endif %}
+        
+        {% if districts %}
+        <div class="row g-4">
+            {% regroup districts by governorate as governorate_list %}
+            
+            {% for governorate_group in governorate_list %}
+            <!-- Governorate Header -->
+            <div class="col-12">
+                <div class="governorate-header p-3 bg-primary text-white rounded d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="{{ governorate_group.grouper.icon|default:'fas fa-city' }} me-2"></i>
+                        {{ governorate_group.grouper.name }}
+                    </h4>
+                    <a href="{% url 'governorate_detail' governorate_group.grouper.slug %}" 
+                       class="btn btn-light btn-sm">
+                        <i class="fas fa-eye me-1"></i>
+                        عرض الكل
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Districts in this Governorate -->
+            {% for district in governorate_group.list %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{% url 'district_detail' district.slug %}" 
+                   class="district-card card h-100 text-decoration-none border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="district-icon mb-3">
+                            <i class="fas fa-map-marker-alt fa-3x text-primary"></i>
+                        </div>
+                        
+                        <h5 class="card-title mb-2">{{ district.name }}</h5>
+                        
+                        <div class="business-count">
+                            <span class="badge bg-success">
+                                <i class="fas fa-store me-1"></i>
+                                {{ district.business_count }} محل
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-map-marker-alt fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">لا توجد أحياء متاحة</h4>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .governorate-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    .district-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .district-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    .district-card:hover .district-icon i {
+        transform: scale(1.2);
+        color: #764ba2 !important;
+    }
+    
+    .district-icon {
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .district-icon i {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}

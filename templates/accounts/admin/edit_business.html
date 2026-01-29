@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تعديل {{ business.name }} - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+        overflow-x: hidden;
+        max-width: calc(100% - 280px);
+    }
+    
+    .business-header {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .logo-preview {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid #dee2e6;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    
+    @media (max-width: 991px) {
+        .dashboard-main {
+            max-width: 100%;
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <main class="dashboard-main">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-edit text-primary"></i>
+                    تعديل محل
+                </h2>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'user_businesses' business.owner.id %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-right"></i> رجوع
+                    </a>
+                    <a href="{{ business.get_absolute_url }}" class="btn btn-outline-primary" target="_blank">
+                        <i class="fas fa-eye"></i> عرض في الموقع
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Business Info -->
+            <div class="business-header">
+                <div class="d-flex align-items-center gap-3">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" class="logo-preview" alt="{{ business.name }}">
+                    {% else %}
+                    <div class="logo-preview bg-light d-flex align-items-center justify-content-center">
+                        <i class="fas fa-store fa-2x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h4 class="mb-1">{{ business.name }}</h4>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-user"></i> {{ business.owner.get_full_name|default:business.owner.username }} |
+                            <i class="fas fa-calendar"></i> {{ business.created_at|date:"Y/m/d" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit Form -->
+            <div class="form-card">
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- البيانات الأساسية -->
+                            <div class="col-12">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-info-circle text-primary"></i>
+                                    البيانات الأساسية
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-store"></i> اسم المحل <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="name" class="form-control" 
+                                       value="{{ business.name }}" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-tag"></i> الفئة <span class="text-danger">*</span>
+                                </label>
+                                <select name="category" class="form-select" required>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if business.category.id == cat.id %}selected{% endif %}>
+                                        {{ cat.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-map-marker-alt"></i> الحي <span class="text-danger">*</span>
+                                </label>
+                                <select name="district" class="form-select" required>
+                                    {% for district in districts %}
+                                    <option value="{{ district.id }}" {% if business.district.id == district.id %}selected{% endif %}>
+                                        {{ district.name }} - {{ district.governorate.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-image"></i> تغيير اللوجو
+                                </label>
+                                <input type="file" name="logo" class="form-control" accept="image/*">
+                                <small class="text-muted">يُفضل صورة مربعة 500x500 بكسل</small>
+                            </div>
+                            
+                            <!-- معلومات الاتصال -->
+                            <div class="col-12 mt-4">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-phone text-success"></i>
+                                    معلومات الاتصال
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    <i class="fas fa-phone"></i> رقم الهاتف <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="phone" class="form-control" 
+                                       value="{{ business.phone }}" required>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    <i class="fab fa-whatsapp"></i> واتساب
+                                </label>
+                                <input type="text" name="whatsapp" class="form-control" 
+                                       value="{{ business.whatsapp }}">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i> البريد الإلكتروني
+                                </label>
+                                <input type="email" name="email" class="form-control" 
+                                       value="{{ business.email }}">
+                            </div>
+                            
+                            <!-- الوصف والعنوان -->
+                            <div class="col-12 mt-4">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-align-left text-info"></i>
+                                    الوصف والعنوان
+                                </h5>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">
+                                    <i class="fas fa-map"></i> العنوان <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="address" class="form-control" rows="2" required>{{ business.address }}</textarea>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">
+                                    <i class="fas fa-align-left"></i> الوصف <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="description" class="form-control" rows="4" required>{{ business.description }}</textarea>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">
+                                    <i class="fas fa-clock"></i> ساعات العمل
+                                </label>
+                                <textarea name="working_hours" class="form-control" rows="2">{{ business.working_hours }}</textarea>
+                                <small class="text-muted">مثال: السبت-الخميس: 9 صباحاً - 10 مساءً</small>
+                            </div>
+                            
+                            <!-- الحالات -->
+                            <div class="col-12 mt-4">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-cog text-warning"></i>
+                                    الحالات والإعدادات
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_active" 
+                                           id="is_active" {% if business.is_active %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">
+                                        <i class="fas fa-check-circle text-success"></i> نشط
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_verified" 
+                                           id="is_verified" {% if business.is_verified %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_verified">
+                                        <i class="fas fa-badge-check text-primary"></i> موثق
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_featured" 
+                                           id="is_featured" {% if business.is_featured %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_featured">
+                                        <i class="fas fa-star text-warning"></i> مميز
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> حفظ التعديلات
+                            </button>
+                            <a href="{% url 'user_businesses' business.owner.id %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}

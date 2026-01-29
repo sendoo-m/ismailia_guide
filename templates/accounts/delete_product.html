@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تأكيد حذف {{ product.name }} - لوحة التحكم{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h4 class="mb-0">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                لوحة التحكم
+            </h4>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'vendor_dashboard' %}" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            
+            <a href="{% url 'manage_products' %}" class="nav-link active">
+                <i class="fas fa-box"></i>
+                <span>المنتجات</span>
+            </a>
+            
+            <hr>
+            
+            <a href="{% url 'logout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل الخروج</span>
+            </a>
+        </nav>
+    </aside>
+    
+    <main class="dashboard-main">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4">
+                            <i class="fas fa-exclamation-circle text-warning" style="font-size: 5rem;"></i>
+                        </div>
+                        
+                        <h3 class="mb-3">حذف المنتج؟</h3>
+                        
+                        <div class="card bg-light p-3 mb-4 text-start">
+                            <div class="mb-2">
+                                <strong>المنتج:</strong> {{ product.name }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>المحل:</strong> {{ product.business.name }}
+                            </div>
+                            <div>
+                                <strong>السعر:</strong> {{ product.price }} جنيه
+                            </div>
+                        </div>
+                        
+                        <p class="text-muted mb-4">
+                            هل تريد حذف هذا المنتج نهائياً؟
+                        </p>
+                        
+                        <div class="d-grid gap-2">
+                            <form method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-lg w-100">
+                                    <i class="fas fa-trash me-2"></i> نعم، احذف المنتج
+                                </button>
+                            </form>
+                            
+                            <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> إلغاء
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-sidebar {
+        width: 280px;
+        background: white;
+        border-left: 1px solid #dee2e6;
+    }
+    
+    .sidebar-header {
+        padding: 25px 20px;
+        border-bottom: 1px solid #dee2e6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .sidebar-nav {
+        padding: 20px 0;
+    }
+    
+    .sidebar-nav .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+    
+    .sidebar-nav .nav-link.active {
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    .sidebar-nav .nav-link i {
+        width: 20px;
+        margin-left: 10px;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+        display: flex;
+        align-items: center;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-sidebar {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

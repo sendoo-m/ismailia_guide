@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}خريطة المحلات - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map-full {
+        height: calc(100vh - 100px);
+        width: 100%;
+    }
+    
+    .map-sidebar {
+        position: absolute;
+        top: 80px;
+        right: 20px;
+        width: 350px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        padding: 20px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        z-index: 1000;
+    }
+    
+    .business-card-map {
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .business-card-map:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+        transform: translateX(-5px);
+    }
+    
+    .business-card-map.active {
+        border-color: #667eea;
+        background: #e3f2fd;
+    }
+    
+    .custom-popup {
+        text-align: center;
+        min-width: 200px;
+    }
+    
+    .custom-popup h5 {
+        margin-bottom: 10px;
+        color: #667eea;
+    }
+    
+    .custom-popup .btn {
+        margin-top: 10px;
+    }
+    
+    @media (max-width: 768px) {
+        .map-sidebar {
+            width: 90%;
+            right: 5%;
+            max-height: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="position: relative;">
+    <!-- خريطة كاملة -->
+    <div id="map-full"></div>
+    
+    <!-- Sidebar للمحلات -->
+    <div class="map-sidebar">
+        <h5 class="fw-bold mb-3">
+            <i class="fas fa-store text-primary"></i>
+            المحلات ({{ businesses.count }})
+        </h5>
+        
+        <div class="mb-3">
+            <input type="text" 
+                   id="search-map" 
+                   class="form-control" 
+                   placeholder="ابحث عن محل...">
+        </div>
+        
+        <div id="businesses-list">
+            {% for business in businesses %}
+            <div class="business-card-map" 
+                 data-lat="{{ business.latitude }}" 
+                 data-lng="{{ business.longitude }}"
+                 data-id="{{ business.id }}">
+                <h6 class="mb-1">{{ business.name }}</h6>
+                <small class="text-muted d-block mb-2">
+                    <i class="fas fa-map-marker-alt"></i> {{ business.district.name }}
+                </small>
+                <a href="{% url 'business_detail' business.slug %}" 
+                   class="btn btn-sm btn-primary w-100">
+                    <i class="fas fa-eye"></i> عرض التفاصيل
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map;
+    let markers = [];
+    let markersGroup;
+    
+    function initMap() {
+        // إنشاء الخريطة (مركزها الإسماعيلية)
+        map = L.map('map-full').setView([30.5833, 32.2667], 13);
+        
+        // إضافة طبقة الخريطة
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // مجموعة للـ Markers
+        markersGroup = L.layerGroup().addTo(map);
+        
+        // إضافة Markers لكل المحلات
+        const businesses = document.querySelectorAll('.business-card-map');
+        
+        businesses.forEach((card, index) => {
+            const lat = parseFloat(card.dataset.lat);
+            const lng = parseFloat(card.dataset.lng);
+            
+            if (lat && lng) {
+                // إنشاء icon مخصص
+                const customIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div style="background: #667eea; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">' + (index + 1) + '</div>',
+                    iconSize: [30, 30]
+                });
+                
+                const marker = L.marker([lat, lng], { icon: customIcon }).addTo(markersGroup);
+                
+                // Popup content
+                const businessName = card.querySelector('h6').textContent;
+                const businessDistrict = card.querySelector('small').textContent.trim();
+                const businessUrl = card.querySelector('a').href;
+                
+                const popupContent = `
+                    <div class="custom-popup">
+                        <h5>${businessName}</h5>
+                        <p class="text-muted mb-0">${businessDistrict}</p>
+                        <a href="${businessUrl}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> عرض التفاصيل
+                        </a>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+                
+                // عند الضغط على الـ Card
+                card.addEventListener('click', function() {
+                    // إزالة active من الكل
+                    businesses.forEach(b => b.classList.remove('active'));
+                    // إضافة active للـ Card المضغوط
+                    this.classList.add('active');
+                    
+                    // التحرك للموقع وفتح الـ Popup
+                    map.setView([lat, lng], 17);
+                    marker.openPopup();
+                });
+                
+                markers.push({ marker, card, businessName });
+            }
+        });
+        
+        // البحث
+        document.getElementById('search-map').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            markers.forEach(item => {
+                const name = item.businessName.toLowerCase();
+                const card = item.card;
+                
+                if (name.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    window.onload = initMap;
+</script>
+{% endblock %}

@@ -1,0 +1,1327 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}لوحة تحكم المسؤولين - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Top Bar -->
+        <div class="dashboard-topbar">
+            <div>
+                <h2 class="mb-1">مرحباً، {{ user.get_full_name|default:user.username }} 👋</h2>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    السبت، 3 يناير 2026
+                </p>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <!-- Notifications Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm position-relative" 
+                            type="button" 
+                            id="notificationsDropdown" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        {% if stats.pending_businesses > 0 or stats.pending_reviews > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ stats.pending_businesses|add:stats.pending_reviews }}
+                        </span>
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 300px;">
+                        <li class="dropdown-header">الإشعارات</li>
+                        {% if stats.pending_businesses > 0 %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'manage_businesses' %}?status=pending">
+                                <i class="fas fa-store text-warning me-2"></i>
+                                {{ stats.pending_businesses }} محل بانتظار المراجعة
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if stats.pending_reviews > 0 %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'manage_reviews' %}">
+                                <i class="fas fa-star text-info me-2"></i>
+                                {{ stats.pending_reviews }} تقييم بانتظار الموافقة
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if stats.pending_businesses == 0 and stats.pending_reviews == 0 %}
+                        <li>
+                            <span class="dropdown-item text-muted">لا توجد إشعارات جديدة</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <a href="{% url 'home' %}" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="fas fa-globe me-2"></i> عرض الموقع
+                </a>
+                <a href="{% url 'dashboard_settings' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-cog"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions mb-4">
+            <h5 class="mb-3">
+                <i class="fas fa-bolt text-warning me-2"></i>
+                إجراءات سريعة
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                    <a href="{% url 'add_business_admin' %}" class="quick-action-card">
+                        <div class="quick-action-icon bg-primary">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <span>إضافة محل جديد</span>
+                    </a>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <a href="{% url 'add_category' %}" class="quick-action-card">
+                        <div class="quick-action-icon bg-info">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <span>إضافة فئة</span>
+                    </a>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <a href="{% url 'add_vendor' %}" class="quick-action-card">
+                        <div class="quick-action-icon bg-success">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <span>إضافة تاجر</span>
+                    </a>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <a href="{% url 'manage_reviews' %}" class="quick-action-card">
+                        <div class="quick-action-icon bg-warning">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <span>مراجعة التقييمات</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card bg-gradient-primary text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.total_businesses }}</h3>
+                        <p class="stat-label">إجمالي المحلات</p>
+                        <div class="stat-progress mt-2">
+                            <div class="progress" style="height: 6px; background: rgba(255,255,255,0.2);">
+                                <div class="progress-bar bg-white" 
+                                     style="width: {% widthratio stats.active_businesses stats.total_businesses 100 %}%"></div>
+                            </div>
+                            <small class="opacity-75 mt-1 d-block">{{ stats.active_businesses }} نشط</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card bg-gradient-warning text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.pending_businesses }}</h3>
+                        <p class="stat-label">قيد المراجعة</p>
+                        {% if stats.pending_businesses > 0 %}
+                        <a href="{% url 'manage_businesses' %}?status=pending" class="btn btn-sm btn-light mt-2">
+                            مراجعة الآن <i class="fas fa-arrow-left ms-2"></i>
+                        </a>
+                        {% else %}
+                        <small class="opacity-75 mt-2 d-block">✅ لا توجد محلات معلقة</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card bg-gradient-info text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.total_reviews }}</h3>
+                        <p class="stat-label">التقييمات</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="opacity-75">{{ stats.approved_reviews|default:0 }} موافق عليه</small>
+                            {% if stats.pending_reviews > 0 %}
+                            <span class="badge bg-danger">{{ stats.pending_reviews }} معلق</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card bg-gradient-success text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.total_users }}</h3>
+                        <p class="stat-label">المستخدمين</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="opacity-75">
+                                <i class="fas fa-user-tie me-1"></i>{{ stats.total_vendors }} تاجر
+                            </small>
+                            <small class="opacity-75">
+                                <i class="fas fa-user me-1"></i>{{ stats.total_customers|default:0 }} عميل
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Secondary Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon bg-primary">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div class="mini-stat-content">
+                        <h6 class="mb-0">{{ stats.total_categories }}</h6>
+                        <small class="text-muted">الفئات</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon bg-info">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="mini-stat-content">
+                        <h6 class="mb-0">{{ stats.total_districts }}</h6>
+                        <small class="text-muted">الأحياء</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon bg-success">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="mini-stat-content">
+                        <h6 class="mb-0">{{ stats.total_products }}</h6>
+                        <small class="text-muted">المنتجات</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon bg-warning">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="mini-stat-content">
+                        <h6 class="mb-0">{{ stats.total_views|default:0 }}</h6>
+                        <small class="text-muted">المشاهدات</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon bg-danger">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div class="mini-stat-content">
+                        <h6 class="mb-0">{{ stats.verified_businesses|default:0 }}</h6>
+                        <small class="text-muted">موثق</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon bg-secondary">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="mini-stat-content">
+                        <h6 class="mb-0">{{ stats.featured_businesses|default:0 }}</h6>
+                        <small class="text-muted">مميز</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Latest Data -->
+        <div class="row g-4">
+            <!-- Latest Businesses -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-store text-primary me-2"></i>
+                                آخر المحلات المضافة
+                            </h5>
+                            <a href="{% url 'manage_businesses' %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-list me-2"></i>عرض الكل
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 40%;">المحل</th>
+                                        <th>الفئة</th>
+                                        <th>المالك</th>
+                                        <th>الحالة</th>
+                                        <th style="width: 15%;">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for business in latest_businesses %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if business.logo %}
+                                                <img src="{{ business.logo.url }}" 
+                                                     alt="{{ business.name }}" 
+                                                     class="rounded shadow-sm me-3"
+                                                     style="width: 45px; height: 45px; object-fit: cover;">
+                                                {% else %}
+                                                <div class="bg-light rounded shadow-sm me-3 d-flex align-items-center justify-content-center"
+                                                     style="width: 45px; height: 45px;">
+                                                    <i class="fas fa-store text-muted"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <strong class="d-block">{{ business.name|truncatechars:30 }}</strong>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar-alt me-1"></i>
+                                                        {{ business.created_at|date:"Y/m/d" }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">
+                                                <i class="fas fa-tag me-1"></i>
+                                                {{ business.category.name }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-user-circle text-muted me-1"></i>
+                                            {{ business.owner.username }}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column gap-1">
+                                                {% if business.is_active %}
+                                                <span class="badge bg-success-subtle text-success">
+                                                    <i class="fas fa-check-circle me-1"></i> نشط
+                                                </span>
+                                                {% else %}
+                                                <span class="badge bg-warning-subtle text-warning">
+                                                    <i class="fas fa-pause-circle me-1"></i> معلق
+                                                </span>
+                                                {% endif %}
+                                                
+                                                {% if business.is_verified %}
+                                                <span class="badge bg-primary-subtle text-primary">
+                                                    <i class="fas fa-certificate me-1"></i> موثق
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'business_detail' business.slug %}" 
+                                                   class="btn btn-outline-primary btn-sm" 
+                                                   target="_blank"
+                                                   data-bs-toggle="tooltip"
+                                                   title="عرض التفاصيل">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'edit_business_admin' business.pk %}" 
+                                                   class="btn btn-outline-info btn-sm"
+                                                   data-bs-toggle="tooltip"
+                                                   title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button"
+                                                        class="btn btn-outline-{% if business.is_active %}warning{% else %}success{% endif %} btn-sm"
+                                                        onclick="toggleBusinessStatus({{ business.pk }})"
+                                                        data-bs-toggle="tooltip"
+                                                        title="{% if business.is_active %}إيقاف{% else %}تفعيل{% endif %}">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-5">
+                                            <i class="fas fa-inbox fa-3x mb-3 d-block opacity-25"></i>
+                                            <p class="mb-0">لا توجد محلات بعد</p>
+                                            <a href="{% url 'add_business_admin' %}" class="btn btn-sm btn-primary mt-3">
+                                                <i class="fas fa-plus me-2"></i>إضافة أول محل
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar Widgets -->
+            <div class="col-lg-4">
+                <!-- Latest Reviews -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h6 class="mb-0">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            آخر التقييمات
+                        </h6>
+                    </div>
+                    <div class="card-body p-3">
+                        {% for review in latest_reviews|slice:":4" %}
+                        <div class="review-item mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="flex-grow-1">
+                                    <strong class="d-block mb-1">{{ review.reviewer_name|truncatechars:20 }}</strong>
+                                    <a href="{% url 'business_detail' review.business.slug %}" 
+                                       class="text-muted small text-decoration-none"
+                                       target="_blank">
+                                        <i class="fas fa-store me-1"></i>
+                                        {{ review.business.name|truncatechars:25 }}
+                                    </a>
+                                </div>
+                                <div class="rating-stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star text-warning" style="font-size: 0.75rem;"></i>
+                                        {% else %}
+                                        <i class="far fa-star text-warning" style="font-size: 0.75rem;"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% if review.comment %}
+                            <p class="text-muted small mb-2" style="font-size: 0.85rem;">
+                                "{{ review.comment|truncatewords:8 }}"
+                            </p>
+                            {% endif %}
+                            <div class="d-flex gap-2 align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ review.created_at|timesince }}
+                                </small>
+                                {% if not review.is_approved %}
+                                <span class="badge bg-warning-subtle text-warning">قيد المراجعة</span>
+                                {% else %}
+                                <span class="badge bg-success-subtle text-success">
+                                    <i class="fas fa-check me-1"></i>معتمد
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-comment-slash fa-2x mb-2 opacity-25"></i>
+                            <p class="mb-0 small">لا توجد تقييمات</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if latest_reviews %}
+                    <div class="card-footer bg-white text-center border-0 py-2">
+                        <a href="{% url 'manage_reviews' %}" class="btn btn-sm btn-link text-decoration-none">
+                            عرض جميع التقييمات <i class="fas fa-arrow-left me-2"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Top Businesses -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h6 class="mb-0">
+                            <i class="fas fa-fire text-danger me-2"></i>
+                            الأكثر مشاهدة هذا الشهر
+                        </h6>
+                    </div>
+                    <div class="card-body p-3">
+                        {% for business in top_businesses %}
+                        <div class="d-flex align-items-center mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="rank-badge me-3">
+                                {{ forloop.counter }}
+                            </div>
+                            <div class="flex-grow-1">
+                                <a href="{% url 'business_detail' business.slug %}" 
+                                   class="text-dark text-decoration-none fw-bold d-block mb-1"
+                                   target="_blank"
+                                   style="font-size: 0.9rem;">
+                                    {{ business.name|truncatechars:30 }}
+                                </a>
+                                <div class="d-flex align-items-center gap-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-eye me-1 text-primary"></i>
+                                        {{ business.view_count|default:0 }}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-star me-1 text-warning"></i>
+                                        {{ business.average_rating|default:"0" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-chart-line fa-2x mb-2 opacity-25"></i>
+                            <p class="mb-0 small">لا توجد بيانات كافية</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% block extra_css %}
+<style>
+    /* ================== Dashboard Layout ================== */
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 25px;
+        overflow-y: auto;
+        max-width: 100%;
+    }
+    
+    .dashboard-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    /* ================== Quick Actions ================== */
+    .quick-actions {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .quick-action-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 15px;
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #495057;
+        transition: all 0.3s;
+        text-align: center;
+    }
+    
+    .quick-action-card:hover {
+        border-color: #667eea;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        color: #667eea;
+    }
+    
+    .quick-action-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 10px;
+    }
+    
+    .quick-action-card span {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    /* ================== Stat Cards ================== */
+    .stat-card {
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        min-height: 160px;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255,255,255,0.08);
+        transform: rotate(25deg);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    }
+    
+    .stat-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255,255,255,0.25);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .stat-content {
+        flex: 1;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        margin: 0 0 10px 0;
+        opacity: 0.95;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    
+    .stat-progress .progress {
+        height: 6px;
+        border-radius: 10px;
+    }
+    
+    /* ================== Mini Stat Cards ================== */
+    .mini-stat-card {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s;
+    }
+    
+    .mini-stat-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        transform: translateY(-3px);
+    }
+    
+    .mini-stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .mini-stat-content h6 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+    
+    .mini-stat-content small {
+        font-size: 0.75rem;
+    }
+    
+    /* ================== Gradients ================== */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    
+    /* ================== Rank Badge ================== */
+    .rank-badge {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        box-shadow: 0 3px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* ================== Cards ================== */
+    .card {
+        border-radius: 12px;
+        transition: all 0.3s;
+    }
+    
+    .card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* ================== Table Improvements ================== */
+    .table thead th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    /* ================== Badge Variants ================== */
+    .bg-success-subtle {
+        background-color: rgba(67, 233, 123, 0.15);
+    }
+    
+    .bg-warning-subtle {
+        background-color: rgba(255, 193, 7, 0.15);
+    }
+    
+    .bg-primary-subtle {
+        background-color: rgba(102, 126, 234, 0.15);
+    }
+    
+    .text-success {
+        color: #28a745 !important;
+    }
+    
+    .text-warning {
+        color: #ffc107 !important;
+    }
+    
+    .text-primary {
+        color: #667eea !important;
+    }
+    
+    /* ================== Responsive ================== */
+    @media (max-width: 992px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-main {
+            padding: 20px 15px;
+        }
+        
+        .stat-card {
+            padding: 20px;
+            min-height: auto;
+        }
+        
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            font-size: 1.5rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+        }
+        
+        .dashboard-topbar {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        
+        .dashboard-topbar > div:last-child {
+            width: 100%;
+        }
+        
+        .dashboard-topbar .d-flex {
+            width: 100%;
+            justify-content: flex-start;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .quick-actions .row {
+            gap: 10px;
+        }
+        
+        .quick-action-card {
+            padding: 15px 10px;
+        }
+        
+        .quick-action-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+    }
+    
+    /* ================== Animation ================== */
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .stat-card,
+    .mini-stat-card,
+    .card {
+        animation: slideInUp 0.5s ease-out;
+    }
+    
+    .stat-card:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+    
+    .stat-card:nth-child(3) {
+        animation-delay: 0.2s;
+    }
+    
+    .stat-card:nth-child(4) {
+        animation-delay: 0.3s;
+    }
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+// Initialize Bootstrap Tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+// Toggle Business Status
+function toggleBusinessStatus(businessId) {
+    if (confirm('هل أنت متأكد من تغيير حالة المحل؟')) {
+        window.location.href = `/accounts/admin/businesses/${businessId}/toggle-status/`;
+    }
+}
+
+// Auto-hide alerts after 5 seconds
+setTimeout(function() {
+    var alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        var bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+    });
+}, 5000);
+</script>
+{% endblock %}
+
+{% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}لوحة التحكم - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h4 class="mb-0">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                لوحة التحكم
+            </h4>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'vendor_dashboard' %}" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            
+            {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'manage_businesses' %}" class="nav-link">
+                <i class="fas fa-store"></i>
+                <span>المحلات</span>
+                <span class="badge bg-primary">{{ stats.total_businesses }}</span>
+            </a>
+            
+            <a href="{% url 'manage_categories' %}" class="nav-link">
+                <i class="fas fa-tags"></i>
+                <span>الفئات</span>
+            </a>
+            
+            <a href="{% url 'manage_reviews' %}" class="nav-link">
+                <i class="fas fa-star"></i>
+                <span>التقييمات</span>
+                {% if stats.pending_reviews > 0 %}
+                <span class="badge bg-warning">{{ stats.pending_reviews }}</span>
+                {% endif %}
+            </a>
+            {% endif %}
+            
+            <a href="{% url 'dashboard_settings' %}" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            
+            <hr>
+            
+            <a href="{% url 'home' %}" class="nav-link">
+                <i class="fas fa-globe"></i>
+                <span>عرض الموقع</span>
+            </a>
+            
+            <a href="{% url 'logout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل الخروج</span>
+            </a>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Top Bar -->
+        <div class="dashboard-topbar">
+            <h2 class="mb-0">مرحباً، {{ user.get_full_name|default:user.username }} 👋</h2>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <a href="{% url 'dashboard_settings' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            {% if user.is_staff or user.is_superuser %}
+            <div class="col-md-3">
+                <div class="stat-card bg-primary text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.total_businesses }}</h3>
+                        <p class="stat-label">إجمالي المحلات</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-card bg-success text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.active_businesses }}</h3>
+                        <p class="stat-label">محلات نشطة</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-card bg-warning text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.pending_businesses }}</h3>
+                        <p class="stat-label">قيد المراجعة</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-card bg-info text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.total_reviews }}</h3>
+                        <p class="stat-label">التقييمات</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Stats للمستخدم العادي -->
+            <div class="col-md-3">
+                <div class="stat-card bg-primary text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.my_businesses }}</h3>
+                        <p class="stat-label">محلاتي</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-card bg-success text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ stats.total_views }}</h3>
+                        <p class="stat-label">المشاهدات</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Latest Data -->
+        {% if user.is_staff or user.is_superuser %}
+        <div class="row g-4">
+            <!-- Latest Businesses -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-store text-primary me-2"></i>
+                            آخر المحلات المضافة
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>المحل</th>
+                                        <th>الفئة</th>
+                                        <th>الحالة</th>
+                                        <th>التاريخ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for business in latest_businesses %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if business.logo %}
+                                                <img src="{{ business.logo.url }}" 
+                                                     alt="{{ business.name }}" 
+                                                     class="rounded me-2"
+                                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ business.name }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ business.owner.username }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ business.category.name }}</td>
+                                        <td>
+                                            {% if business.is_active %}
+                                            <span class="badge bg-success">نشط</span>
+                                            {% else %}
+                                            <span class="badge bg-warning">معلق</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ business.created_at|date:"Y/m/d" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white text-center">
+                        <a href="{% url 'manage_businesses' %}" class="btn btn-sm btn-primary">
+                            عرض الكل <i class="fas fa-arrow-left me-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Latest Reviews -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            آخر التقييمات
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if latest_reviews %}
+                            {% for review in latest_reviews %}
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <strong>{{ review.reviewer_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ review.business.name }}</small>
+                                    </div>
+                                    <div class="rating-stars">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-muted small mb-1">{{ review.comment|truncatewords:15 }}</p>
+                                <small class="text-muted">
+                                    <i class="far fa-clock"></i> {{ review.created_at|timesince }} مضت
+                                </small>
+                                
+                                {% if review.is_approved %}
+                                <span class="badge bg-success ms-2">معتمد</span>
+                                {% else %}
+                                <span class="badge bg-warning">قيد المراجعة</span>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">لا توجد تقييمات بعد</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-white text-center">
+                        <a href="{% url 'manage_reviews' %}" class="btn btn-sm btn-warning">
+                            عرض الكل <i class="fas fa-arrow-left me-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    /* Sidebar */
+    .dashboard-sidebar {
+        width: 280px;
+        background: white;
+        border-left: 1px solid #dee2e6;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .sidebar-header {
+        padding: 25px 20px;
+        border-bottom: 1px solid #dee2e6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .sidebar-nav {
+        padding: 20px 0;
+    }
+    
+    .sidebar-nav .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.3s;
+        position: relative;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+    
+    .sidebar-nav .nav-link.active {
+        background: #667eea;
+        color: white;
+    }
+    
+    .sidebar-nav .nav-link i {
+        width: 20px;
+        margin-left: 10px;
+    }
+    
+    .sidebar-nav .nav-link .badge {
+        margin-right: auto;
+    }
+    
+    /* Main Content */
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+    }
+    
+    .dashboard-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    /* Stat Cards */
+    .stat-card {
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: transform 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+    
+    .stat-content {
+        flex: 1;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+    
+    /* Review Card Styling */
+    .card-body .border-bottom:last-child {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .rating-stars {
+        white-space: nowrap;
+    }
+    
+    .rating-stars i {
+        font-size: 0.9rem;
+    }
+    
+    /* Empty State */
+    .text-center.py-5 {
+        padding: 3rem 1rem;
+    }
+    
+    .text-center.py-5 i {
+        opacity: 0.3;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+        
+        .dashboard-main {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %} {% endcomment %}

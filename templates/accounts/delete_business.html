@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}حذف المحل - {{ business.name }}{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    {% include 'includes/vendor_sidebar.html' %}
+    
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'vendor_dashboard' %}">لوحة التحكم</a></li>
+                <li class="breadcrumb-item active">حذف المحل</li>
+            </ol>
+        </nav>
+        
+        <!-- Delete Confirmation -->
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card border-danger shadow-lg">
+                    <div class="card-header bg-danger text-white text-center py-4">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <h3 class="mb-0">تأكيد الحذف</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-danger">
+                            <h5 class="alert-heading">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                تحذير: هذا الإجراء لا يمكن التراجع عنه!
+                            </h5>
+                            <hr>
+                            <p class="mb-0">
+                                سيتم حذف جميع البيانات المرتبطة بالمحل نهائياً
+                            </p>
+                        </div>
+                        
+                        <div class="business-info bg-light p-4 rounded mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                {% if business.logo %}
+                                <img src="{{ business.logo.url }}" 
+                                     alt="{{ business.name }}"
+                                     class="business-logo me-3">
+                                {% else %}
+                                <div class="business-logo bg-white me-3 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-store text-primary fs-3"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h4 class="mb-1">{{ business.name }}</h4>
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-tag me-1"></i> {{ business.category.name }}
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-map-marker-alt me-1"></i> {{ business.district.name }}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="row text-center mt-3">
+                                <div class="col-4">
+                                    <div class="stat-box p-3 bg-white rounded">
+                                        <i class="fas fa-eye text-primary mb-2"></i>
+                                        <h5 class="mb-0">{{ business.view_count|default:0 }}</h5>
+                                        <small class="text-muted">مشاهدة</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-box p-3 bg-white rounded">
+                                        <i class="fas fa-box text-info mb-2"></i>
+                                        <h5 class="mb-0">{{ product_count }}</h5>
+                                        <small class="text-muted">منتج</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-box p-3 bg-white rounded">
+                                        <i class="fas fa-star text-warning mb-2"></i>
+                                        <h5 class="mb-0">{{ business.total_reviews|default:0 }}</h5>
+                                        <small class="text-muted">تقييم</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="deletion-info">
+                            <h5 class="mb-3">
+                                <i class="fas fa-trash-alt text-danger me-2"></i>
+                                سيتم حذف:
+                            </h5>
+                            <ul class="list-unstyled ps-4">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-danger me-2"></i>
+                                    بيانات المحل الأساسية
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-danger me-2"></i>
+                                    {{ product_count }} منتج
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-danger me-2"></i>
+                                    جميع الصور والمرفقات
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-danger me-2"></i>
+                                    التقييمات والمراجعات
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-danger me-2"></i>
+                                    الإحصائيات والبيانات التاريخية
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <form method="post" onsubmit="return confirm('هل أنت متأكد تماماً؟ اكتب DELETE للتأكيد');">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    للتأكيد، اكتب اسم المحل بالضبط:
+                                    <span class="text-primary">{{ business.name }}</span>
+                                </label>
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="confirm-name"
+                                       placeholder="اكتب اسم المحل هنا"
+                                       required>
+                                <small class="text-muted">يجب كتابة الاسم بالضبط للمتابعة</small>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" 
+                                        class="btn btn-danger btn-lg" 
+                                        id="delete-btn"
+                                        disabled>
+                                    <i class="fas fa-trash-alt me-2"></i>
+                                    نعم، احذف المحل نهائياً
+                                </button>
+                                <a href="{% url 'vendor_dashboard' %}" 
+                                   class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-times me-2"></i>
+                                    إلغاء
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+    }
+    
+    .business-logo {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 12px;
+        flex-shrink: 0;
+    }
+    
+    .stat-box {
+        transition: transform 0.3s;
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-5px);
+    }
+    
+    .breadcrumb {
+        background: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "←";
+    }
+    
+    @media (max-width: 992px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-main {
+            padding: 20px 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// تفعيل زر الحذف عند كتابة الاسم الصحيح
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmInput = document.getElementById('confirm-name');
+    const deleteBtn = document.getElementById('delete-btn');
+    const businessName = "{{ business.name }}";
+    
+    confirmInput.addEventListener('input', function() {
+        if (this.value.trim() === businessName) {
+            deleteBtn.disabled = false;
+            deleteBtn.classList.remove('btn-secondary');
+            deleteBtn.classList.add('btn-danger');
+        } else {
+            deleteBtn.disabled = true;
+            deleteBtn.classList.remove('btn-danger');
+            deleteBtn.classList.add('btn-secondary');
+        }
+    });
+});
+</script>
+{% endblock %}

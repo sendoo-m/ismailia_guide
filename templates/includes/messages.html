@@ -1,0 +1,57 @@
+{% if messages %}
+<div class="messages-container" style="position: fixed; top: 80px; left: 20px; z-index: 9999; min-width: 350px;">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-lg scroll-reveal" 
+         role="alert" 
+         style="border-radius: 15px; border-left: 5px solid 
+         {% if message.tags == 'success' %}#28a745{% elif message.tags == 'error' %}#dc3545{% elif message.tags == 'warning' %}#ffc107{% else %}#17a2b8{% endif %};">
+        <div class="d-flex align-items-center">
+            <div class="me-3" style="font-size: 1.5rem;">
+                {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle text-success"></i>
+                {% elif message.tags == 'error' %}
+                    <i class="fas fa-exclamation-circle text-danger"></i>
+                {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                {% else %}
+                    <i class="fas fa-info-circle text-info"></i>
+                {% endif %}
+            </div>
+            <div class="flex-grow-1">
+                <strong>
+                    {% if message.tags == 'success' %}تم بنجاح!{% elif message.tags == 'error' %}خطأ!{% elif message.tags == 'warning' %}تنبيه!{% else %}معلومة{% endif %}
+                </strong>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .messages-container .alert {
+        animation: slideInRight 0.5s ease;
+        margin-bottom: 15px;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(-100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .messages-container {
+            left: 10px;
+            right: 10px;
+            min-width: auto;
+        }
+    }
+</style>
+{% endif %}

@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خطأ في الخادم - 500</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-box {
+            background: white;
+            color: #333;
+            padding: 60px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="error-box text-center">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 100px;"></i>
+                    <h1 class="display-1 fw-bold text-danger mt-4">500</h1>
+                    <h2 class="fw-bold mb-3">خطأ في الخادم!</h2>
+                    <p class="lead text-muted mb-4">
+                        عذراً، حدث خطأ غير متوقع في الخادم.<br>
+                        فريقنا يعمل على حل المشكلة الآن.
+                    </p>
+                    <a href="/" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home"></i> العودة للرئيسية
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

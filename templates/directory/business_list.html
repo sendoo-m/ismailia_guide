@@ -1,0 +1,1349 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}جميع المحلات - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+
+<!-- ============================================
+     PAGE HEADER
+     ============================================ -->
+<section class="page-header">
+    <div class="header-overlay"></div>
+    <div class="container">
+        <h1>
+            <i class="fas fa-store"></i>
+            {% if query %}
+            نتائج البحث عن "{{ query }}"
+            {% else %}
+            جميع المحلات والخدمات
+            {% endif %}
+        </h1>
+        <p>اكتشف أفضل الخدمات في الإسماعيلية</p>
+    </div>
+</section>
+
+<!-- ============================================
+     MAIN CONTENT
+     ============================================ -->
+<div class="container content-section">
+    <div class="row">
+        
+        <!-- ========== SIDEBAR FILTERS ========== -->
+        <div class="col-lg-3">
+            <div class="filters-sidebar">
+                
+                <!-- Search Box -->
+                <div class="filter-box">
+                    <h5><i class="fas fa-search"></i> البحث</h5>
+                    <form method="GET">
+                        <div class="search-group">
+                            <input type="text" 
+                                   name="q" 
+                                   placeholder="ابحث هنا..."
+                                   value="{{ query|default:'' }}">
+                            <button type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Governorate Filter -->
+                <div class="filter-box">
+                    <h5><i class="fas fa-city"></i> المحافظة</h5>
+                    <a href="{% url 'business_list' %}{% if query %}?q={{ query }}{% endif %}" 
+                       class="filter-item {% if not selected_governorate %}active{% endif %}">
+                        <i class="fas fa-th"></i>
+                        <span>جميع المحافظات</span>
+                    </a>
+                    {% for governorate in governorates %}
+                    <a href="?governorate={{ governorate.slug }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" 
+                       class="filter-item {% if selected_governorate == governorate.slug %}active{% endif %}">
+                        <i class="{{ governorate.icon|default:'fas fa-city' }}"></i>
+                        <span>{{ governorate.name }}</span>
+                        <span class="count">{{ governorate.business_count|default:0 }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                
+                <!-- District Filter -->
+                <div class="filter-box">
+                    <h5><i class="fas fa-map-marker-alt"></i> الحي</h5>
+                    <a href="{% url 'business_list' %}{% if query %}?q={{ query }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" 
+                       class="filter-item {% if not selected_district %}active{% endif %}">
+                        <i class="fas fa-map"></i>
+                        <span>جميع الأحياء</span>
+                    </a>
+                    {% for district in districts %}
+                    <a href="?district={{ district.slug }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}" 
+                       class="filter-item {% if selected_district == district.slug %}active{% endif %}">
+                        <i class="fas fa-location-dot"></i>
+                        <div class="filter-text">
+                            <span>{{ district.name }}</span>
+                            {% if selected_governorate %}
+                            <small>{{ district.governorate.name }}</small>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="filter-box">
+                    <h5><i class="fas fa-th-large"></i> الفئات</h5>
+                    <a href="{% url 'business_list' %}{% if query %}?q={{ query }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}" 
+                       class="filter-item {% if not selected_category %}active{% endif %}">
+                        <i class="fas fa-th"></i>
+                        <span>جميع الفئات</span>
+                    </a>
+                    {% for category in categories %}
+                    <a href="?category={{ category.slug }}{% if query %}&q={{ query }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}" 
+                       class="filter-item {% if selected_category == category.slug %}active{% endif %}">
+                        <i class="{{ category.icon|default:'fas fa-store' }}"></i>
+                        <span>{{ category.name }}</span>
+                        <span class="count">{{ category.business_count|default:0 }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- ========== RESULTS ========== -->
+        <div class="col-lg-9">
+            
+            <!-- Active Filters -->
+            {% if selected_governorate_obj or selected_district_obj or selected_category %}
+            <div class="active-filters">
+                <div class="filters-header">
+                    <i class="fas fa-filter"></i>
+                    <span>الفلاتر النشطة:</span>
+                </div>
+                <div class="filters-tags">
+                    {% if selected_governorate_obj %}
+                    <span class="filter-tag tag-info">
+                        <i class="fas fa-city"></i>
+                        {{ selected_governorate_obj.name }}
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_district %}district={{ selected_district }}{% endif %}">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    {% if selected_district_obj %}
+                    <span class="filter-tag tag-success">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ selected_district_obj.name }}
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_governorate %}governorate={{ selected_governorate }}{% endif %}">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    {% if selected_category %}
+                    <span class="filter-tag tag-primary">
+                        <i class="fas fa-tag"></i>
+                        {{ selected_category }}
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_governorate %}governorate={{ selected_governorate }}&{% endif %}{% if selected_district %}district={{ selected_district }}{% endif %}">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    <a href="{% url 'business_list' %}{% if query %}?q={{ query }}{% endif %}" 
+                       class="clear-filters">
+                        <i class="fas fa-times"></i> مسح الكل
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Results Header -->
+            <div class="results-header">
+                <div class="results-count">
+                    <strong>{{ total_count }}</strong> محل تم العثور عليه
+                </div>
+                <div class="results-sort">
+                    <form method="GET">
+                        {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+                        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                        {% if selected_governorate %}<input type="hidden" name="governorate" value="{{ selected_governorate }}">{% endif %}
+                        {% if selected_district %}<input type="hidden" name="district" value="{{ selected_district }}">{% endif %}
+                        
+                        <select name="order" onchange="this.form.submit()">
+                            <option value="-created_at" {% if order == '-created_at' %}selected{% endif %}>الأحدث أولاً</option>
+                            <option value="name" {% if order == 'name' %}selected{% endif %}>الاسم (أ - ي)</option>
+                            <option value="-view_count" {% if order == '-view_count' %}selected{% endif %}>الأكثر مشاهدة</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Business List -->
+            {% if businesses %}
+                {% for business in businesses %}
+                <div class="business-item">
+                    
+                    <!-- Cover & Logo -->
+                    <div class="business-visual">
+                        <div class="business-cover-small">
+                            {% if business.cover_image %}
+                            <img src="{{ business.cover_image.url }}" alt="{{ business.name }}">
+                            {% else %}
+                            <div class="cover-placeholder-small"></div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="business-logo-wrap">
+                            {% if business.logo %}
+                            <img src="{{ business.logo.url }}" alt="{{ business.name }}" class="business-logo-small">
+                            {% else %}
+                            <div class="business-logo-small placeholder">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Info -->
+                    <div class="business-details">
+                        <div class="business-title-row">
+                            <h5>
+                                <a href="{% url 'business_detail' business.slug %}">
+                                    {{ business.name }}
+                                </a>
+                            </h5>
+                            {% if business.is_featured %}
+                            <span class="badge-featured">
+                                <i class="fas fa-crown"></i> مميز
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="business-meta">
+                            <span><i class="fas fa-tag"></i> {{ business.category.name }}</span>
+                            <span><i class="fas fa-city"></i> {{ business.district.governorate.name }}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> {{ business.district.name }}</span>
+                        </div>
+                        
+                        <p class="business-description">
+                            {{ business.description|truncatewords:20 }}
+                        </p>
+                        
+                        <div class="business-stats">
+                            {% if business.average_rating > 0 %}
+                            <div class="rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= business.average_rating %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <small>({{ business.total_reviews }})</small>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="views">
+                                <i class="fas fa-eye"></i> {{ business.view_count }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="business-actions">
+                        <a href="{% url 'business_detail' business.slug %}" class="btn-action btn-primary">
+                            <i class="fas fa-eye"></i> عرض التفاصيل
+                        </a>
+                        
+                        {% if business.phone %}
+                        <a href="tel:{{ business.phone }}" class="btn-action btn-success">
+                            <i class="fas fa-phone"></i> اتصل
+                        </a>
+                        {% endif %}
+                        
+                        {% if business.whatsapp %}
+                        <a href="https://wa.me/{{ business.whatsapp|cut:'+' }}" 
+                           target="_blank"
+                           class="btn-action btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> واتساب
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+                {% endfor %}
+                
+                <!-- Pagination -->
+                {% if businesses.has_other_pages %}
+                <div class="pagination-wrapper">
+                    <nav>
+                        <ul class="pagination-custom">
+                            {% if businesses.has_previous %}
+                            <li>
+                                <a href="?page={{ businesses.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}{% if order %}&order={{ order }}{% endif %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in businesses.paginator.page_range %}
+                            <li {% if businesses.number == num %}class="active"{% endif %}>
+                                <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}{% if order %}&order={{ order }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                            
+                            {% if businesses.has_next %}
+                            <li>
+                                <a href="?page={{ businesses.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}{% if order %}&order={{ order }}{% endif %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+                
+            {% else %}
+                <!-- No Results -->
+                <div class="no-results">
+                    <i class="fas fa-search"></i>
+                    <h4>لا توجد نتائج</h4>
+                    <p>جرب البحث بكلمات أخرى أو تغيير الفلاتر</p>
+                    <a href="{% url 'business_list' %}" class="btn-reset">
+                        <i class="fas fa-redo"></i> إعادة تعيين البحث
+                    </a>
+                </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<!-- ============================================
+     EXTRA CSS
+     ============================================ -->
+{% block extra_css %}
+<style>
+    /* ========== Page Header ========== */
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 4rem 0 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .page-header h1 {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    /* ========== Content Section ========== */
+    .content-section {
+        padding: 3rem 0;
+    }
+
+    /* ========== Filters Sidebar ========== */
+    .filters-sidebar {
+        position: sticky;
+        top: 20px;
+    }
+
+    .filter-box {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .filter-box h5 {
+        color: #667eea;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Search Group */
+    .search-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .search-group input {
+        flex: 1;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        outline: none;
+        transition: all 0.3s;
+    }
+
+    .search-group input:focus {
+        border-color: #667eea;
+    }
+
+    .search-group button {
+        padding: 0.75rem 1.25rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .search-group button:hover {
+        background: #764ba2;
+    }
+
+    /* Filter Items */
+    .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        background: #f8f9fa;
+        color: #4a5568;
+        text-decoration: none;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .filter-item i {
+        flex-shrink: 0;
+        width: 20px;
+        text-align: center;
+    }
+
+    .filter-item span {
+        flex: 1;
+    }
+
+    .filter-item .count {
+        background: #e2e8f0;
+        color: #4a5568;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .filter-item:hover {
+        background: #667eea;
+        color: white;
+        transform: translateX(-5px);
+    }
+
+    .filter-item:hover .count {
+        background: white;
+        color: #667eea;
+    }
+
+    .filter-item.active {
+        background: #667eea;
+        color: white;
+    }
+
+    .filter-item.active .count {
+        background: white;
+        color: #667eea;
+    }
+
+    .filter-text {
+        flex: 1;
+    }
+
+    .filter-text small {
+        display: block;
+        font-size: 0.75rem;
+        opacity: 0.8;
+        margin-top: 0.25rem;
+    }
+
+    /* ========== Active Filters ========== */
+    .active-filters {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 1rem;
+    }
+
+    .filters-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .filter-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .tag-info {
+        background: #17a2b8;
+    }
+
+    .tag-success {
+        background: #28a745;
+    }
+
+    .tag-primary {
+        background: #667eea;
+    }
+
+    .filter-tag a {
+        color: white;
+        text-decoration: none;
+        margin-right: 0.5rem;
+        font-weight: 700;
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+
+    .clear-filters {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #dc3545;
+        color: white;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .clear-filters:hover {
+        background: #c82333;
+        color: white;
+    }
+
+    /* ========== Results Header ========== */
+    .results-header {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .results-count {
+        font-size: 1rem;
+        color: #4a5568;
+    }
+
+    .results-count strong {
+        color: #667eea;
+        font-size: 1.25rem;
+    }
+
+    .results-sort select {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        outline: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    /* ========== Business Item ========== */
+    .business-item {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: grid;
+        grid-template-columns: 140px 1fr auto;
+        gap: 1.5rem;
+        transition: all 0.3s;
+    }
+
+    .business-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    /* Visual (Cover + Logo) */
+    .business-visual {
+        position: relative;
+    }
+
+    .business-cover-small {
+        width: 100%;
+        height: 100px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .business-cover-small img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cover-placeholder-small {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .business-logo-wrap {
+        display: flex;
+        justify-content: center;
+    }
+
+    .business-logo-small {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .business-logo-small.placeholder {
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e0;
+        font-size: 1.5rem;
+    }
+
+    /* Details */
+    .business-details {
+        flex: 1;
+    }
+
+    .business-title-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .business-title-row h5 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .business-title-row a {
+        color: #1a202c;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .business-title-row a:hover {
+        color: #667eea;
+    }
+
+    .badge-featured {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #000;
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .business-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+        color: #718096;
+    }
+
+    .business-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .business-meta i {
+        color: #667eea;
+    }
+
+    .business-description {
+        color: #718096;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+    }
+
+    .business-stats {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        font-size: 0.875rem;
+    }
+
+    .rating i {
+        color: #ffc107;
+    }
+
+    .rating small {
+        color: #718096;
+        margin-right: 0.25rem;
+    }
+
+    .views {
+        color: #718096;
+    }
+
+    .views i {
+        color: #17a2b8;
+        margin-left: 0.25rem;
+    }
+
+    /* Actions */
+    .business-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-width: 140px;
+    }
+
+    .btn-action {
+        padding: 0.625rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #764ba2;
+        color: white;
+    }
+
+    .btn-success {
+        background: white;
+        color: #28a745;
+        border: 2px solid #28a745;
+    }
+
+    .btn-success:hover {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-whatsapp {
+        background: #25d366;
+        color: white;
+    }
+
+    .btn-whatsapp:hover {
+        background: #20ba5a;
+        color: white;
+    }
+
+    /* ========== Pagination ========== */
+    .pagination-wrapper {
+        margin-top: 2rem;
+    }
+
+    .pagination-custom {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .pagination-custom li a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: white;
+        color: #4a5568;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .pagination-custom li a:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .pagination-custom li.active a {
+        background: #667eea;
+        color: white;
+    }
+
+    /* ========== No Results ========== */
+    .no-results {
+        background: white;
+        border-radius: 12px;
+        padding: 4rem 2rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .no-results i {
+        font-size: 4rem;
+        color: #cbd5e0;
+        margin-bottom: 1.5rem;
+    }
+
+    .no-results h4 {
+        color: #4a5568;
+        margin-bottom: 0.75rem;
+    }
+
+    .no-results p {
+        color: #718096;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-reset {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 2rem;
+        background: #667eea;
+        color: white;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-reset:hover {
+        background: #764ba2;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 1024px) {
+        .business-item {
+            grid-template-columns: 120px 1fr;
+        }
+
+        .business-actions {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            min-width: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .filters-sidebar {
+            position: static;
+            margin-bottom: 2rem;
+        }
+
+        .business-item {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .business-visual {
+            display: grid;
+            grid-template-columns: 1fr 80px;
+            gap: 1rem;
+        }
+
+        .business-cover-small {
+            height: 80px;
+            margin-bottom: 0;
+        }
+
+        .business-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}جميع المحلات - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0 40px;
+        margin-bottom: 40px;
+    }
+    
+    .filter-sidebar {
+        position: sticky;
+        top: 80px;
+    }
+    
+    .filter-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+    
+    .filter-card h5 {
+        color: #667eea;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .filter-option {
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #f8f9fa;
+    }
+    
+    .filter-option:hover {
+        background: #667eea;
+        color: white !important;
+        transform: translateX(-5px);
+    }
+    
+    .filter-option:hover .badge {
+        background: white !important;
+        color: #667eea !important;
+    }
+    
+    .filter-option.active {
+        background: #667eea;
+        color: white !important;
+    }
+    
+    .filter-option.active .badge {
+        background: white !important;
+        color: #667eea !important;
+    }
+    
+    .business-card-list {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+    }
+    
+    .business-card-list:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .results-header {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    
+    .sort-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 8px 15px;
+    }
+    
+    .badge-featured {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .active-filters {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1 class="fw-bold mb-3">
+            <i class="fas fa-store"></i>
+            {% if query %}
+            نتائج البحث عن "{{ query }}"
+            {% else %}
+            جميع المحلات والخدمات
+            {% endif %}
+        </h1>
+        <p class="lead mb-0">اكتشف أفضل الخدمات في الإسماعيلية</p>
+    </div>
+</section>
+
+<div class="container pb-5">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <!-- Search Box -->
+                <div class="filter-card">
+                    <h5><i class="fas fa-search"></i> البحث</h5>
+                    <form method="GET" action="{% url 'business_list' %}">
+                        <div class="input-group">
+                            <input type="text" 
+                                   name="q" 
+                                   class="form-control" 
+                                   placeholder="ابحث هنا..."
+                                   value="{{ query|default:'' }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Governorate Filter - جديد -->
+                <div class="filter-card">
+                    <h5><i class="fas fa-city"></i> المحافظة</h5>
+                    <a href="{% url 'business_list' %}{% if query %}?q={{ query }}{% endif %}" 
+                       class="filter-option d-block text-decoration-none {% if not selected_governorate %}active{% endif %}">
+                        <i class="fas fa-th"></i> جميع المحافظات
+                    </a>
+                    {% for governorate in governorates %}
+                    <a href="?governorate={{ governorate.slug }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" 
+                       class="filter-option d-block text-decoration-none {% if selected_governorate == governorate.slug %}active{% endif %}">
+                        <i class="{{ governorate.icon|default:'fas fa-city' }}"></i>
+                        {{ governorate.name }}
+                        <span class="badge bg-secondary float-end">
+                            {{ governorate.business_count|default:0 }}
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+                
+                <!-- District Filter - محدّث -->
+                <div class="filter-card">
+                    <h5><i class="fas fa-map-marker-alt"></i> الحي</h5>
+                    <a href="{% url 'business_list' %}{% if query %}?q={{ query }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" 
+                       class="filter-option d-block text-decoration-none {% if not selected_district %}active{% endif %}">
+                        <i class="fas fa-map"></i> جميع الأحياء
+                    </a>
+                    {% for district in districts %}
+                    <a href="?district={{ district.slug }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}" 
+                       class="filter-option d-block text-decoration-none {% if selected_district == district.slug %}active{% endif %}">
+                        <i class="fas fa-location-dot"></i>
+                        {{ district.name }}
+                        {% if selected_governorate %}
+                        <small class="text-muted d-block" style="font-size: 0.75rem; margin-top: 2px;">
+                            {{ district.governorate.name }}
+                        </small>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="filter-card">
+                    <h5><i class="fas fa-th-large"></i> الفئات</h5>
+                    <a href="{% url 'business_list' %}{% if query %}?q={{ query }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}" 
+                       class="filter-option d-block text-decoration-none {% if not selected_category %}active{% endif %}">
+                        <i class="fas fa-th"></i> جميع الفئات
+                    </a>
+                    {% for category in categories %}
+                    <a href="?category={{ category.slug }}{% if query %}&q={{ query }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}" 
+                       class="filter-option d-block text-decoration-none {% if selected_category == category.slug %}active{% endif %}">
+                        <i class="fas {{ category.icon|default:'fa-store' }}"></i>
+                        {{ category.name }}
+                        <span class="badge bg-secondary float-end">
+                            {{ category.business_count|default:0 }}
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="col-lg-9">
+            <!-- Active Filters - جديد -->
+            {% if selected_governorate_obj or selected_district_obj or selected_category %}
+            <div class="active-filters">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="fw-bold">
+                        <i class="fas fa-filter me-1"></i>
+                        الفلاتر النشطة:
+                    </span>
+                    
+                    {% if selected_governorate_obj %}
+                    <span class="badge bg-info text-dark">
+                        <i class="fas fa-city me-1"></i>
+                        {{ selected_governorate_obj.name }}
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_district %}district={{ selected_district }}{% endif %}" 
+                           class="text-dark ms-1 text-decoration-none">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    {% if selected_district_obj %}
+                    <span class="badge bg-success">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        {{ selected_district_obj.name }}
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_governorate %}governorate={{ selected_governorate }}{% endif %}" 
+                           class="text-white ms-1 text-decoration-none">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    {% if selected_category %}
+                    <span class="badge bg-primary">
+                        <i class="fas fa-tag me-1"></i>
+                        {{ selected_category }}
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_governorate %}governorate={{ selected_governorate }}&{% endif %}{% if selected_district %}district={{ selected_district }}{% endif %}" 
+                           class="text-white ms-1 text-decoration-none">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    <a href="{% url 'business_list' %}{% if query %}?q={{ query }}{% endif %}" 
+                       class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-times me-1"></i>
+                        مسح الكل
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Results Header -->
+            <div class="results-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-0">
+                            <strong>{{ total_count }}</strong> محل تم العثور عليه
+                        </h5>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <form method="GET" class="d-inline">
+                            {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+                            {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                            {% if selected_governorate %}<input type="hidden" name="governorate" value="{{ selected_governorate }}">{% endif %}
+                            {% if selected_district %}<input type="hidden" name="district" value="{{ selected_district }}">{% endif %}
+                            
+                            <select name="order" class="sort-select" onchange="this.form.submit()">
+                                <option value="-created_at" {% if order == '-created_at' %}selected{% endif %}>الأحدث أولاً</option>
+                                <option value="name" {% if order == 'name' %}selected{% endif %}>الاسم (أ - ي)</option>
+                                <option value="-view_count" {% if order == '-view_count' %}selected{% endif %}>الأكثر مشاهدة</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Business List -->
+            {% if businesses %}
+                {% for business in businesses %}
+                <div class="business-card-list">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            {% if business.logo %}
+                            <img src="{{ business.logo.url }}" 
+                                 alt="{{ business.name }}" 
+                                 class="img-fluid rounded"
+                                 style="width: 100%; height: 100px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                 style="width: 100%; height: 100px;">
+                                <i class="fas fa-store text-muted fs-2"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-7">
+                            <div class="d-flex align-items-start mb-2">
+                                <h5 class="mb-0 me-2">
+                                    <a href="{% url 'business_detail' business.slug %}" 
+                                       class="text-dark text-decoration-none">
+                                        {{ business.name }}
+                                    </a>
+                                </h5>
+                                
+                                {% if business.is_featured %}
+                                <span class="badge badge-featured">
+                                    <i class="fas fa-crown"></i> مميز
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-tag text-primary"></i> {{ business.category.name }}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-city text-info"></i> {{ business.district.governorate.name }}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-map-marker-alt text-success"></i> {{ business.district.name }}
+                            </p>
+                            
+                            <p class="text-muted small mb-2">
+                                {{ business.description|truncatewords:20 }}
+                            </p>
+                            
+                            <div class="d-flex align-items-center gap-3">
+                                {% if business.average_rating > 0 %}
+                                <div class="rating-stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= business.average_rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small class="text-muted">({{ business.total_reviews }})</small>
+                                </div>
+                                {% endif %}
+                                
+                                <small class="text-muted">
+                                    <i class="fas fa-eye"></i> {{ business.view_count }} مشاهدة
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-end">
+                            <a href="{% url 'business_detail' business.slug %}" 
+                               class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-eye"></i> عرض التفاصيل
+                            </a>
+                            
+                            {% if business.phone %}
+                            <a href="tel:{{ business.phone }}" 
+                               class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-phone"></i> اتصل الآن
+                            </a>
+                            {% endif %}
+                            
+                            {% if business.whatsapp %}
+                            <a href="https://wa.me/{{ business.whatsapp|cut:'+' }}" 
+                               target="_blank"
+                               class="btn btn-success w-100">
+                                <i class="fab fa-whatsapp"></i> واتساب
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- Pagination -->
+                {% if businesses.has_other_pages %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if businesses.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ businesses.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}{% if order %}&order={{ order }}{% endif %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in businesses.paginator.page_range %}
+                        {% if businesses.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}{% if order %}&order={{ order }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if businesses.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ businesses.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_governorate %}&governorate={{ selected_governorate }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}{% if order %}&order={{ order }}{% endif %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <!-- No Results -->
+                <div class="text-center py-5">
+                    <i class="fas fa-search fs-1 text-muted mb-3"></i>
+                    <h4 class="text-muted">لا توجد نتائج</h4>
+                    <p class="text-muted">جرب البحث بكلمات أخرى أو تغيير الفلاتر</p>
+                    <a href="{% url 'business_list' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-redo"></i> إعادة تعيين البحث
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} {% endcomment %}

@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0 40px;
+        margin-bottom: 40px;
+    }
+    
+    .category-icon {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #667eea;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    .filter-sidebar {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 20px;
+    }
+    
+    .filter-option {
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #f8f9fa;
+        display: block;
+        text-decoration: none;
+        color: #333;
+    }
+    
+    .filter-option:hover {
+        background: #667eea;
+        color: white;
+        transform: translateX(-5px);
+    }
+    
+    .filter-option.active {
+        background: #667eea;
+        color: white;
+    }
+    
+    .business-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+    }
+    
+    .business-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Category Header -->
+<section class="category-header">
+    <div class="container text-center">
+        <div class="category-icon">
+            <i class="fas {{ category.icon }}"></i>
+        </div>
+        <h1 class="fw-bold mb-3">{{ category.name }}</h1>
+        <p class="lead mb-0">{{ businesses.count }} محل متاح</p>
+    </div>
+</section>
+
+<div class="container pb-5">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <h5 class="fw-bold mb-3">
+                    <i class="fas fa-filter text-primary"></i>
+                    تصفية حسب الحي
+                </h5>
+                
+                <a href="{% url 'category_detail' category.slug %}" 
+                   class="filter-option {% if not selected_district %}active{% endif %}">
+                    <i class="fas fa-map"></i> الكل
+                    <span class="badge bg-secondary float-start">{{ businesses.count }}</span>
+                </a>
+                
+                {% for district in districts %}
+                <a href="?district={{ district.slug }}" 
+                   class="filter-option {% if selected_district == district.slug %}active{% endif %}">
+                    <i class="fas fa-location-dot"></i> {{ district.name }}
+                    <span class="badge bg-secondary float-start">
+                        {{ district.business_count|default:0 }}
+                    </span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Businesses List -->
+        <div class="col-lg-9">
+            <!-- Sort Options -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">
+                    {% if selected_district %}
+                        {{ category.name }} في {{ selected_district_name }}
+                    {% else %}
+                        جميع {{ category.name }}
+                    {% endif %}
+                </h4>
+                
+                <form method="GET" class="d-inline">
+                    {% if selected_district %}
+                    <input type="hidden" name="district" value="{{ selected_district }}">
+                    {% endif %}
+                    
+                    <select name="order" class="form-select" onchange="this.form.submit()">
+                        <option value="-created_at">الأحدث أولاً</option>
+                        <option value="name">الاسم (أ - ي)</option>
+                        <option value="-view_count">الأكثر مشاهدة</option>
+                    </select>
+                </form>
+            </div>
+            
+            <!-- Businesses -->
+            {% if businesses %}
+                {% for business in businesses %}
+                <div class="business-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            {% if business.logo %}
+                            <img src="{{ business.logo.url }}" 
+                                 alt="{{ business.name }}" 
+                                 class="img-fluid rounded"
+                                 style="width: 100%; height: 100px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                 style="width: 100%; height: 100px;">
+                                <i class="fas {{ category.icon }} text-muted fs-2"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-7">
+                            <div class="d-flex align-items-start mb-2">
+                                <h5 class="mb-0 me-2">
+                                    <a href="{% url 'business_detail' business.slug %}" 
+                                       class="text-dark text-decoration-none">
+                                        {{ business.name }}
+                                    </a>
+                                </h5>
+                                
+                                {% if business.subscription.plan.featured_in_search %}
+                                <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-crown"></i> مميز
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-map-marker-alt text-primary"></i> {{ business.district.name }}
+                                {% if business.phone %}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-phone text-primary"></i> {{ business.phone }}
+                                {% endif %}
+                            </p>
+                            
+                            <p class="text-muted small mb-2">
+                                {{ business.description|truncatewords:20 }}
+                            </p>
+                            
+                            <div class="d-flex align-items-center gap-3">
+                                {% if business.average_rating > 0 %}
+                                <div style="color: #ffc107;">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= business.average_rating %}
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small class="text-muted">({{ business.total_reviews }})</small>
+                                </div>
+                                {% endif %}
+                                
+                                <small class="text-muted">
+                                    <i class="fas fa-eye"></i> {{ business.view_count }} مشاهدة
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-end">
+                            <a href="{% url 'business_detail' business.slug %}" 
+                               class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-eye"></i> عرض التفاصيل
+                            </a>
+                            
+                            <a href="tel:{{ business.phone }}" 
+                               class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-phone"></i> اتصل الآن
+                            </a>
+                            
+                            {% if business.whatsapp %}
+                            <a href="https://wa.me/{{ business.whatsapp|cut:'+' }}" 
+                               target="_blank"
+                               class="btn btn-success w-100">
+                                <i class="fab fa-whatsapp"></i> واتساب
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- No Results -->
+                <div class="text-center py-5">
+                    <i class="fas {{ category.icon }} fs-1 text-muted mb-3"></i>
+                    <h4 class="text-muted">لا توجد محلات في هذه الفئة حالياً</h4>
+                    <p class="text-muted">جرب فئة أخرى أو تصفح جميع المحلات</p>
+                    <a href="{% url 'business_list' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-store"></i> تصفح جميع المحلات
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,316 @@
+<footer class="footer bg-dark text-white pt-5 pb-3 mt-auto">
+    <div class="container">
+        <div class="row">
+            <!-- معلومات عن الدليل -->
+            <div class="col-lg-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="fas fa-map-marked-alt text-primary"></i>
+                    دليل الإسماعيلية
+                </h5>
+                <p class="text-light-muted">
+                    أول وأشمل دليل إلكتروني للمحلات التجارية والخدمات في محافظة الإسماعيلية. 
+                    نساعدك في العثور على كل ما تحتاجه بسهولة وسرعة.
+                </p>
+                <div class="social-links">
+                    <a href="#" class="btn btn-outline-light btn-sm me-2" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm me-2" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm me-2" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-sm" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- روابط سريعة -->
+            <div class="col-lg-2 col-md-6 mb-4">
+                <h5 class="fw-bold mb-3">روابط سريعة</h5>
+                <ul class="list-unstyled footer-links">
+                    <li class="mb-2">
+                        <a href="{% url 'home' %}" class="footer-link">
+                            <i class="fas fa-home me-1"></i> الرئيسية
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'business_list' %}" class="footer-link">
+                            <i class="fas fa-store me-1"></i> جميع المحلات
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'categories' %}" class="footer-link">
+                            <i class="fas fa-th-large me-1"></i> الفئات
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'map_view' %}" class="footer-link">
+                            <i class="fas fa-map me-1"></i> الخريطة
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'about' %}" class="footer-link">
+                            <i class="fas fa-info-circle me-1"></i> عن الدليل
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- لأصحاب المحلات -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="fw-bold mb-3">لأصحاب المحلات</h5>
+                <ul class="list-unstyled footer-links">
+                    {% if user.is_authenticated %}
+                        <li class="mb-2">
+                            <a href="{% url 'vendor_dashboard' %}" class="footer-link">
+                                <i class="fas fa-tachometer-alt me-1"></i> لوحة التحكم
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'manage_products' %}" class="footer-link">
+                                <i class="fas fa-box me-1"></i> إدارة المنتجات
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="mb-2">
+                            <a href="{% url 'register' %}" class="footer-link">
+                                <i class="fas fa-user-plus me-1"></i> سجل محلك
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'login' %}" class="footer-link">
+                                <i class="fas fa-sign-in-alt me-1"></i> تسجيل الدخول
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="mb-2">
+                        <a href="{% url 'upgrade_subscription_page' %}" class="footer-link">
+                            <i class="fas fa-crown me-1"></i> خطط الاشتراك
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'contact' %}" class="footer-link">
+                            <i class="fas fa-headset me-1"></i> الدعم الفني
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- تواصل معنا -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="fw-bold mb-3">تواصل معنا</h5>
+                <ul class="list-unstyled footer-contact">
+                    <li class="mb-3">
+                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                        <span class="text-light-muted">الإسماعيلية، مصر</span>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-phone text-primary me-2"></i>
+                        <a href="tel:+201234567890" class="footer-link">
+                            01234567890
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fab fa-whatsapp text-success me-2"></i>
+                        <a href="https://wa.me/201234567890" class="footer-link">
+                            01234567890
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-envelope text-primary me-2"></i>
+                        <a href="mailto:info@ismailia-guide.com" class="footer-link">
+                            info@ismailia-guide.com
+                        </a>
+                    </li>
+                </ul>
+                
+                <a href="{% url 'contact' %}" class="btn btn-primary btn-sm mt-2">
+                    <i class="fas fa-paper-plane me-1"></i> أرسل رسالة
+                </a>
+            </div>
+        </div>
+        
+        <hr class="border-secondary my-4">
+        
+        <!-- Copyright -->
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <p class="text-light-muted mb-0">
+                    © 2025 <strong class="text-white">دليل الإسماعيلية</strong>. جميع الحقوق محفوظة.
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="{% url 'privacy' %}" class="footer-bottom-link me-3">
+                    سياسة الخصوصية
+                </a>
+                <a href="{% url 'terms' %}" class="footer-bottom-link me-3">
+                    الشروط والأحكام
+                </a>
+                <a href="{% url 'faq' %}" class="footer-bottom-link">
+                    الأسئلة الشائعة
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    /* ========================================
+       Footer Styling
+       ======================================== */
+    .footer {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%) !important;
+        position: relative;
+        overflow: hidden;
+        margin-top: 0 !important;
+    }
+    
+    .footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.5;
+    }
+    
+    .footer > .container {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Footer Text Colors */
+    .text-light-muted {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    /* Footer Links */
+    .footer-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .footer-link:hover {
+        color: #667eea !important;
+        transform: translateX(-5px);
+    }
+    
+    .footer-link i {
+        transition: all 0.3s ease;
+    }
+    
+    .footer-link:hover i {
+        transform: scale(1.2);
+    }
+    
+    /* Footer Bottom Links */
+    .footer-bottom-link {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        padding-bottom: 2px;
+    }
+    
+    .footer-bottom-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #667eea;
+        transition: width 0.3s ease;
+    }
+    
+    .footer-bottom-link:hover {
+        color: #667eea;
+    }
+    
+    .footer-bottom-link:hover::after {
+        width: 100%;
+    }
+    
+    /* Social Links */
+    .footer .social-links a {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .footer .social-links a:hover {
+        background: #667eea;
+        border-color: #667eea;
+        transform: translateY(-5px) rotate(360deg);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+    }
+    
+    /* Footer Contact Icons */
+    .footer-contact li {
+        display: flex;
+        align-items: center;
+    }
+    
+    .footer-contact i {
+        width: 30px;
+        font-size: 1.1rem;
+    }
+    
+    /* Footer Headings */
+    .footer h5 {
+        position: relative;
+        padding-bottom: 10px;
+    }
+    
+    .footer h5::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea 0%, transparent 100%);
+        border-radius: 2px;
+    }
+    
+    /* Footer HR */
+    .footer hr {
+        opacity: 0.2;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .footer {
+            padding-top: 3rem !important;
+            padding-bottom: 2rem !important;
+        }
+        
+        .footer h5 {
+            font-size: 1.1rem;
+        }
+        
+        .footer .social-links a {
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
+        }
+        
+        .footer-bottom-link {
+            display: block;
+            margin-bottom: 10px;
+        }
+    }
+</style>

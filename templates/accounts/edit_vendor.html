@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تعديل صاحب محل - {{ vendor.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        <!-- ========================================
+             SIDEBAR - القائمة الجانبية
+             ======================================== -->
+        {% include 'includes/admin_sidebar.html' %}
+        
+        <!-- ========================================
+             MAIN CONTENT - المحتوى الرئيسي
+             ======================================== -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'admin_dashboard' %}">
+                            <i class="fas fa-home me-1"></i>لوحة التحكم
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'dashboard_settings' %}">الإعدادات</a>
+                    </li>
+                    <li class="breadcrumb-item active">تعديل صاحب محل</li>
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-user-edit me-2 text-warning"></i>
+                        تعديل صاحب محل
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-user me-1"></i>
+                        {{ vendor.get_full_name }} <span class="badge bg-secondary">@{{ vendor.username }}</span>
+                    </p>
+                </div>
+                <a href="{% url 'dashboard_settings' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right me-2"></i>رجوع
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-user-circle me-2"></i>
+                        تعديل معلومات صاحب المحل
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- المعلومات الشخصية -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2">
+                                        <i class="fas fa-id-card text-primary"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">المعلومات الشخصية</h6>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-user me-1 text-muted"></i>
+                                    الاسم الأول <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="first_name" class="form-control form-control-lg" 
+                                       value="{{ vendor.first_name }}" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-user me-1 text-muted"></i>
+                                    الاسم الأخير <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="last_name" class="form-control form-control-lg" 
+                                       value="{{ vendor.last_name }}" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-1 text-muted"></i>
+                                    البريد الإلكتروني <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" name="email" class="form-control form-control-lg" 
+                                       value="{{ vendor.email }}" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-phone me-1 text-muted"></i>
+                                    رقم الهاتف
+                                </label>
+                                <input type="tel" name="phone" class="form-control form-control-lg" 
+                                       value="{{ vendor.phone|default:'' }}">
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-image me-1 text-muted"></i>
+                                    صورة الملف الشخصي
+                                </label>
+                                {% if vendor.profile_image %}
+                                <div class="mb-3">
+                                    <div class="position-relative d-inline-block">
+                                        <img src="{{ vendor.profile_image.url }}" 
+                                             alt="{{ vendor.get_full_name }}" 
+                                             class="img-thumbnail rounded-circle border-3 border-warning" 
+                                             style="width: 120px; height: 120px; object-fit: cover;">
+                                        <span class="position-absolute bottom-0 start-100 translate-middle badge rounded-pill bg-success">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <input type="file" name="profile_image" class="form-control" accept="image/*">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    اترك فارغاً للاحتفاظ بالصورة الحالية
+                                </small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- إعادة تعيين كلمة المرور -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-danger bg-opacity-10 rounded-circle p-2 me-2">
+                                        <i class="fas fa-key text-danger"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">تغيير كلمة المرور (اختياري)</h6>
+                                </div>
+                                <div class="alert alert-info mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>ملاحظة:</strong> اترك الحقول فارغة للاحتفاظ بكلمة المرور الحالية
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-1 text-muted"></i>
+                                    كلمة المرور الجديدة
+                                </label>
+                                <input type="password" name="new_password" class="form-control form-control-lg" 
+                                       placeholder="********">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-1 text-muted"></i>
+                                    تأكيد كلمة المرور
+                                </label>
+                                <input type="password" name="confirm_password" class="form-control form-control-lg" 
+                                       placeholder="********">
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- الصلاحيات والإحصائيات -->
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-2">
+                                        <i class="fas fa-shield-alt text-warning"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">الصلاحيات والحالة</h6>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-6">
+                                <div class="card border-success h-100">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" name="is_active" id="is_active" 
+                                                   class="form-check-input form-check-input-lg" 
+                                                   {% if vendor.is_active %}checked{% endif %}>
+                                            <label class="form-check-label fw-semibold" for="is_active">
+                                                <i class="fas fa-check-circle me-1 text-success"></i>
+                                                حساب نشط
+                                            </label>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            تحكم في صلاحية الدخول للنظام
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h6 class="mb-3">
+                                            <i class="fas fa-chart-bar me-2 text-primary"></i>
+                                            إحصائيات الحساب
+                                        </h6>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted">
+                                                <i class="fas fa-store me-1"></i>عدد المحلات:
+                                            </span>
+                                            <span class="badge bg-primary fs-6">
+                                                {{ vendor.businesses.count }}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>تاريخ التسجيل:
+                                            </span>
+                                            <span class="text-muted small">
+                                                {{ vendor.date_joined|date:"Y/m/d" }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="row mt-4 pt-4 border-top">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <a href="{% url 'dashboard_settings' %}" class="btn btn-light btn-lg px-4">
+                                        <i class="fas fa-times me-2"></i>إلغاء
+                                    </a>
+                                    <button type="submit" class="btn btn-warning btn-lg px-5 text-white">
+                                        <i class="fas fa-save me-2"></i>حفظ التغييرات
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+{% endblock %}

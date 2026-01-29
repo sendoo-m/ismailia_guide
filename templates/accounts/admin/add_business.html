@@ -1,0 +1,588 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إضافة محل جديد - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">لوحة التحكم</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'manage_businesses' %}">المحلات</a></li>
+                <li class="breadcrumb-item active">إضافة محل جديد</li>
+            </ol>
+        </nav>
+        
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-plus-circle text-primary me-2"></i>
+                    إضافة محل جديد
+                </h2>
+                <p class="text-muted mb-0">أضف محل تجاري جديد للدليل</p>
+            </div>
+            <a href="{% url 'manage_businesses' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-right me-2"></i>رجوع
+            </a>
+        </div>
+        
+        <!-- Form Card -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- المالك -->
+                    <div class="form-section mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-user-tie me-2"></i>
+                            معلومات المالك
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label required">المالك (التاجر)</label>
+                                    <select name="owner" class="form-select" required>
+                                        <option value="">-- اختر المالك --</option>
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}">
+                                            {{ user.username }} - {{ user.get_full_name|default:"بدون اسم" }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="text-muted">اختر التاجر المسؤول عن هذا المحل</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- البيانات الأساسية -->
+                    <div class="form-section mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-info-circle me-2"></i>
+                            البيانات الأساسية
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label required">اسم المحل</label>
+                                    <input type="text" name="name" class="form-control" required 
+                                           placeholder="مثال: محل علي للإلكترونيات">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label required">الفئة</label>
+                                    <select name="category" class="form-select" required>
+                                        <option value="">-- اختر الفئة --</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">المحافظة</label>
+                                    <select id="governorate-select" class="form-select">
+                                        <option value="">-- اختر المحافظة --</option>
+                                        {% for gov in governorates %}
+                                        <option value="{{ gov.id }}">{{ gov.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label required">الحي</label>
+                                    <select name="district" id="district-select" class="form-select" required>
+                                        <option value="">-- اختر الحي --</option>
+                                        {% for district in districts %}
+                                        <option value="{{ district.id }}" data-governorate="{{ district.governorate.id }}">
+                                            {{ district.governorate.name }} - {{ district.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">الوصف</label>
+                            <textarea name="description" class="form-control" rows="4" 
+                                      placeholder="وصف تفصيلي عن المحل والخدمات المقدمة..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">شعار المحل (Logo)</label>
+                            <input type="file" name="logo" class="form-control" accept="image/*">
+                            <small class="text-muted">اختر صورة شعار المحل (اختياري)</small>
+                        </div>
+                    </div>
+                    
+                    <!-- معلومات الاتصال -->
+                    <div class="form-section mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-phone me-2"></i>
+                            معلومات الاتصال
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label required">رقم الهاتف</label>
+                                    <input type="tel" name="phone" class="form-control" required 
+                                           placeholder="01234567890">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">رقم الواتساب</label>
+                                    <input type="tel" name="whatsapp" class="form-control" 
+                                           placeholder="01234567890">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">البريد الإلكتروني</label>
+                                    <input type="email" name="email" class="form-control" 
+                                           placeholder="email@example.com">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label required">العنوان</label>
+                                    <input type="text" name="address" class="form-control" required 
+                                           placeholder="مثال: شارع 23 يوليو، أمام البنك الأهلي">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ساعات العمل</label>
+                                    <input type="text" name="working_hours" class="form-control" 
+                                           placeholder="مثال: من 9 صباحاً إلى 10 مساءً">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- الموقع الجغرافي -->
+                    <div class="form-section mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            الموقع على الخريطة (اختياري)
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">خط العرض (Latitude)</label>
+                                    <input type="number" step="any" name="latitude" class="form-control" 
+                                           placeholder="30.5833">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">خط الطول (Longitude)</label>
+                                    <input type="number" step="any" name="longitude" class="form-control" 
+                                           placeholder="32.2667">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            يمكنك الحصول على الإحداثيات من Google Maps بالضغط بزر الماوس الأيمن على الموقع واختيار الإحداثيات
+                        </div>
+                    </div>
+                    
+                    <!-- الحالة والخيارات -->
+                    <div class="form-section mb-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-cog me-2"></i>
+                            الحالة والخيارات
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="is_active" 
+                                           id="is_active" checked>
+                                    <label class="form-check-label" for="is_active">
+                                        <strong>تفعيل المحل</strong>
+                                        <br>
+                                        <small class="text-muted">سيظهر المحل في نتائج البحث</small>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="is_verified" 
+                                           id="is_verified">
+                                    <label class="form-check-label" for="is_verified">
+                                        <strong>توثيق المحل</strong>
+                                        <br>
+                                        <small class="text-muted">سيظهر المحل بعلامة الموثق</small>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="is_featured" 
+                                           id="is_featured">
+                                    <label class="form-check-label" for="is_featured">
+                                        <strong>محل مميز</strong>
+                                        <br>
+                                        <small class="text-muted">سيظهر في المحلات المميزة</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+                        <a href="{% url 'manage_businesses' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>إلغاء
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>حفظ المحل
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 25px;
+        overflow-y: auto;
+    }
+    
+    .form-section {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .section-title {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .form-label.required::after {
+        content: " *";
+        color: #dc3545;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .card {
+        border-radius: 12px;
+    }
+    
+    .breadcrumb {
+        background: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "←";
+    }
+    
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    /* ================== Select2 Custom Styling ================== */
+    .select2-container {
+        width: 100% !important;
+    }
+    
+    .select2-container--default .select2-selection--single {
+        height: 40px !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 8px !important;
+        padding: 4px 12px !important;
+        background-color: #fff;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 30px !important;
+        color: #495057;
+        padding-right: 12px;
+        padding-left: 30px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px !important;
+        right: auto;
+        left: 8px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d;
+    }
+    
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+    }
+    
+    .select2-dropdown {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        margin-top: 4px;
+    }
+    
+    .select2-results__option {
+        padding: 10px 15px;
+        font-size: 0.95rem;
+    }
+    
+    .select2-results__option--highlighted[aria-selected],
+    .select2-results__option--highlighted {
+        background-color: #667eea !important;
+        color: white !important;
+    }
+    
+    .select2-results__option[aria-selected="true"] {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+    
+    .select2-search--dropdown {
+        padding: 10px;
+    }
+    
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-size: 0.95rem;
+        outline: none;
+    }
+    
+    .select2-search--dropdown .select2-search__field:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    }
+    
+    .select2-container--default .select2-results__option[aria-disabled=true] {
+        color: #6c757d;
+        background-color: #f8f9fa;
+    }
+    
+    /* RTL Support for Select2 */
+    .select2-container--default[dir="rtl"] .select2-selection--single .select2-selection__rendered {
+        padding-right: 30px;
+        padding-left: 12px;
+        text-align: right;
+    }
+    
+    .select2-container--default[dir="rtl"] .select2-selection--single .select2-selection__arrow {
+        left: auto;
+        right: 8px;
+    }
+    
+    .select2-search--dropdown {
+        direction: rtl;
+    }
+    
+    .select2-results {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    /* Clear button styling */
+    .select2-container--default .select2-selection--single .select2-selection__clear {
+        margin-left: 10px;
+        font-size: 1.2rem;
+        color: #6c757d;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__clear:hover {
+        color: #dc3545;
+    }
+    
+    @media (max-width: 992px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-main {
+            padding: 20px 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize Select2 for Owner dropdown
+    $('select[name="owner"]').select2({
+        placeholder: '-- ابحث عن المالك --',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            },
+            searching: function() {
+                return "جاري البحث...";
+            },
+            inputTooShort: function() {
+                return "اكتب للبحث...";
+            }
+        },
+        dir: 'rtl',
+        theme: 'default',
+        width: '100%'
+    });
+    
+    // Initialize Select2 for Category dropdown
+    $('select[name="category"]').select2({
+        placeholder: '-- اختر الفئة --',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            },
+            searching: function() {
+                return "جاري البحث...";
+            }
+        },
+        dir: 'rtl',
+        theme: 'default',
+        width: '100%'
+    });
+    
+    // Initialize Select2 for Governorate dropdown
+    $('#governorate-select').select2({
+        placeholder: '-- اختر المحافظة --',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            }
+        },
+        dir: 'rtl',
+        theme: 'default',
+        width: '100%'
+    });
+    
+    // Initialize Select2 for District dropdown
+    var $districtSelect = $('#district-select').select2({
+        placeholder: '-- اختر الحي --',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            }
+        },
+        dir: 'rtl',
+        theme: 'default',
+        width: '100%'
+    });
+    
+    // Store all districts for filtering
+    var allDistricts = [];
+    $('#district-select option').each(function() {
+        if ($(this).val()) {
+            allDistricts.push({
+                id: $(this).val(),
+                text: $(this).text(),
+                governorate: $(this).data('governorate')
+            });
+        }
+    });
+    
+    // Filter Districts by Governorate
+    $('#governorate-select').on('change', function() {
+        var selectedGovernorate = $(this).val();
+        
+        // Clear and reset district select
+        $districtSelect.empty().trigger('change');
+        
+        // Add placeholder
+        $districtSelect.append(new Option('-- اختر الحي --', '', false, false));
+        
+        if (selectedGovernorate) {
+            // Filter and add matching districts
+            allDistricts.forEach(function(district) {
+                if (district.governorate == selectedGovernorate) {
+                    var option = new Option(district.text, district.id, false, false);
+                    $districtSelect.append(option);
+                }
+            });
+        } else {
+            // Add all districts
+            allDistricts.forEach(function(district) {
+                var option = new Option(district.text, district.id, false, false);
+                $districtSelect.append(option);
+            });
+        }
+        
+        // Trigger change to update Select2
+        $districtSelect.trigger('change');
+    });
+});
+</script>
+{% endblock %}

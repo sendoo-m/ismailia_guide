@@ -1,0 +1,1711 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}دليل الإسماعيلية - دليلك الشامل لجميع الخدمات والمحلات{% endblock %}
+
+{% block content %}
+
+<!-- ============================================
+     🌟 HERO SECTION
+     ============================================ -->
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container">
+        <div class="row align-items-center min-vh-60">
+            <div class="col-lg-10 mx-auto text-center">
+                
+                <h1 class="hero-title">
+                    مرحباً بك في <span class="text-gradient">دليل الإسماعيلية</span> 🌟
+                </h1>
+                
+                <p class="hero-subtitle">
+                    اكتشف أفضل المحلات والخدمات في محافظة الإسماعيلية
+                </p>
+                
+                <span class="hero-badge">
+                    <i class="fas fa-fire"></i> 
+                    أكثر من {{ featured_businesses.count|add:latest_businesses.count }} محل وخدمة
+                </span>
+                
+                <!-- Search Box -->
+                <!-- Search Box في home.html -->
+                <form method="GET" action="{% url 'business_list' %}" class="search-box">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" 
+                            name="q" 
+                            class="search-input" 
+                            placeholder="ابحث عن محل، خدمة، منتج، أو منطقة..."
+                            value="{{ search_query|default:'' }}"
+                            required>
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                    </div>
+                </form>
+
+                
+                <!-- Quick Stats -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <i class="fas fa-store"></i>
+                        <h3>{{ featured_businesses.count|add:latest_businesses.count }}+</h3>
+                        <p>محل</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-layer-group"></i>
+                        <h3>{{ categories.count }}+</h3>
+                        <p>فئة</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h3>15+</h3>
+                        <p>حي</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-star"></i>
+                        <h3>100%</h3>
+                        <p>موثوقية</p>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     📂 CATEGORIES SECTION
+     ============================================ -->
+<section class="section-padding bg-light">
+    <div class="container">
+        
+        <div class="section-header">
+            <span class="section-badge">استكشف الفئات</span>
+            <h2 class="section-title">تصفح حسب الفئة</h2>
+            <p class="section-subtitle">اختر الفئة المناسبة لك واكتشف أفضل الخدمات</p>
+        </div>
+        
+        <div class="categories-grid">
+            {% for category in categories %}
+            <a href="{% url 'category_detail' category.slug %}" class="category-card">
+                <div class="category-icon">
+                    <i class="{{ category.icon|default:'fas fa-store' }}"></i>
+                </div>
+                <h5>{{ category.name }}</h5>
+                <p>
+                    <i class="fas fa-store-alt"></i>
+                    {{ category.businesses.count }} محل
+                </p>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'categories' %}" class="btn-custom btn-outline">
+                عرض جميع الفئات <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+        
+    </div>
+</section>
+
+<!-- ============================================
+     🗺️ GOVERNORATES SECTION
+     ============================================ -->
+{% if governorates %}
+<section class="section-padding">
+    <div class="container">
+        
+        <div class="section-header">
+            <span class="section-badge bg-info">
+                <i class="fas fa-map-marked-alt"></i> تصفح بالمحافظة
+            </span>
+            <h2 class="section-title">المحافظات المتاحة</h2>
+            <p class="section-subtitle">اختر محافظتك واكتشف أفضل المحلات والخدمات</p>
+        </div>
+        
+        <div class="governorates-grid">
+            {% for governorate in governorates %}
+            <a href="{% url 'governorate_detail' governorate.slug %}" class="governorate-card">
+                <div class="governorate-icon">
+                    <i class="{{ governorate.icon|default:'fas fa-city' }}"></i>
+                </div>
+                <h6>{{ governorate.name }}</h6>
+                <div class="governorate-stats">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ governorate.districts.count }}</span>
+                    <span><i class="fas fa-store"></i> {{ governorate.business_count }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'governorates' %}" class="btn-custom btn-info">
+                <i class="fas fa-map-marked-alt"></i>
+                عرض جميع المحافظات
+            </a>
+        </div>
+        
+    </div>
+</section>
+{% endif %}
+
+<!-- ============================================
+     ⭐ FEATURED BUSINESSES
+     ============================================ -->
+{% if featured_businesses %}
+<section class="section-padding bg-light">
+    <div class="container">
+        
+        <div class="section-header">
+            <span class="section-badge bg-warning">
+                <i class="fas fa-crown"></i> المميزون
+            </span>
+            <h2 class="section-title">المحلات المميزة</h2>
+            <p class="section-subtitle">أفضل المحلات في الإسماعيلية حسب تقييمات العملاء</p>
+        </div>
+        
+        <div class="businesses-grid">
+            {% for business in featured_businesses %}
+            <div class="business-card">
+                
+                <!-- Cover Image -->
+                <div class="business-cover">
+                    {% if business.cover_image %}
+                    <img src="{{ business.cover_image.url }}" alt="{{ business.name }}">
+                    {% else %}
+                    <div class="cover-placeholder"></div>
+                    {% endif %}
+                    <span class="business-badge featured">
+                        <i class="fas fa-crown"></i> مميز
+                    </span>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="business-body">
+                    
+                    <!-- Logo & Title -->
+                    <div class="business-header">
+                        {% if business.logo %}
+                        <img src="{{ business.logo.url }}" alt="{{ business.name }}" class="business-logo">
+                        {% else %}
+                        <div class="business-logo placeholder">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="business-info">
+                            <h5>
+                                <a href="{% url 'business_detail' business.slug %}">
+                                    {{ business.name }}
+                                </a>
+                            </h5>
+                            <span class="category-badge">
+                                <i class="fas fa-tag"></i> {{ business.category.name }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <p class="business-desc">
+                        {{ business.description|truncatewords:15 }}
+                    </p>
+                    
+                    <!-- Footer -->
+                    <div class="business-footer">
+                        <div class="location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ business.district.name }}
+                        </div>
+                        
+                        {% if business.average_rating > 0 %}
+                        <div class="rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= business.average_rating %}
+                                <i class="fas fa-star"></i>
+                                {% else %}
+                                <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <small>({{ business.total_reviews }})</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</section>
+{% endif %}
+
+<!-- ============================================
+     🆕 LATEST BUSINESSES
+     ============================================ -->
+{% if latest_businesses %}
+<section class="section-padding">
+    <div class="container">
+        
+        <div class="section-header">
+            <span class="section-badge bg-success">
+                <i class="fas fa-sparkles"></i> جديد
+            </span>
+            <h2 class="section-title">آخر المحلات المضافة</h2>
+            <p class="section-subtitle">أحدث الإضافات لدليل الإسماعيلية</p>
+        </div>
+        
+        <div class="businesses-grid">
+            {% for business in latest_businesses %}
+            <div class="business-card">
+                
+                <!-- Cover Image -->
+                <div class="business-cover">
+                    {% if business.cover_image %}
+                    <img src="{{ business.cover_image.url }}" alt="{{ business.name }}">
+                    {% else %}
+                    <div class="cover-placeholder"></div>
+                    {% endif %}
+                    <span class="business-badge new">
+                        <i class="fas fa-sparkles"></i> جديد
+                    </span>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="business-body">
+                    
+                    <!-- Logo & Title -->
+                    <div class="business-header">
+                        {% if business.logo %}
+                        <img src="{{ business.logo.url }}" alt="{{ business.name }}" class="business-logo">
+                        {% else %}
+                        <div class="business-logo placeholder">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="business-info">
+                            <h5>
+                                <a href="{% url 'business_detail' business.slug %}">
+                                    {{ business.name }}
+                                </a>
+                            </h5>
+                            <span class="category-badge">
+                                <i class="fas fa-tag"></i> {{ business.category.name }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <p class="business-desc">
+                        {{ business.description|truncatewords:15 }}
+                    </p>
+                    
+                    <!-- Footer -->
+                    <div class="business-footer">
+                        <div class="location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ business.district.name }}
+                        </div>
+                        <div class="views">
+                            <i class="fas fa-eye"></i>
+                            {{ business.view_count }}
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'business_list' %}" class="btn-custom btn-primary">
+                <i class="fas fa-store"></i> عرض جميع المحلات
+            </a>
+        </div>
+        
+    </div>
+</section>
+{% endif %}
+
+<!-- ============================================
+     📢 CTA SECTION
+     ============================================ -->
+<section class="cta-section">
+    <div class="cta-overlay"></div>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                
+                <i class="fas fa-rocket cta-icon"></i>
+                
+                <h2 class="cta-title">عندك محل أو خدمة؟</h2>
+                
+                <p class="cta-subtitle">
+                    انضم لدليل الإسماعيلية واوصل لآلاف العملاء المحتملين
+                </p>
+                
+                <div class="cta-buttons">
+                    <a href="{% url 'register' %}" class="btn-custom btn-cta">
+                        <i class="fas fa-user-plus"></i> سجل محلك الآن مجاناً
+                    </a>
+                    <a href="{% url 'contact' %}" class="btn-custom btn-cta-outline">
+                        <i class="fas fa-phone"></i> تواصل معنا
+                    </a>
+                </div>
+                
+                <!-- Features -->
+                <div class="cta-features">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h6>تسجيل مجاني</h6>
+                            <small>ابدأ بدون أي تكلفة</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h6>وصول لآلاف العملاء</h6>
+                            <small>زيادة في المبيعات</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h6>إدارة سهلة</h6>
+                            <small>لوحة تحكم بسيطة</small>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+<!-- ============================================
+     EXTRA CSS
+     ============================================ -->
+{% block extra_css %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* ========== Hero Section ========== */
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 80px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .min-vh-60 {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1.5rem;
+    }
+
+    .text-gradient {
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 2rem;
+    }
+
+    .hero-badge {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 50px;
+        color: white;
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+
+    /* ========== Search Box ========== */
+    .search-box {
+        max-width: 700px;
+        margin: 2rem auto;
+    }
+
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 50px;
+        padding: 0.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    .search-icon {
+        padding: 0 1rem;
+        color: #667eea;
+        font-size: 1.2rem;
+    }
+
+    .search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+
+    .search-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .search-btn:hover {
+        transform: translateX(-5px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    /* ========== Stats Grid ========== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-top: 3rem;
+    }
+
+    .stat-item {
+        padding: 1.5rem;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        color: white;
+        transition: all 0.3s;
+    }
+
+    .stat-item:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateY(-5px);
+    }
+
+    .stat-item i {
+        font-size: 2rem;
+        color: #ffd700;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-item h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+
+    .stat-item p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    /* ========== Section Styling ========== */
+    .section-padding {
+        padding: 5rem 0;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-badge {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        background: #667eea;
+        color: white;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .section-badge.bg-info {
+        background: #17a2b8;
+    }
+
+    .section-badge.bg-warning {
+        background: #ffc107;
+        color: #000;
+    }
+
+    .section-badge.bg-success {
+        background: #28a745;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.75rem;
+    }
+
+    .section-subtitle {
+        font-size: 1.1rem;
+        color: #718096;
+    }
+
+    /* ========== Categories Grid ========== */
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .category-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        text-decoration: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+    }
+
+    .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .category-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        transition: all 0.3s;
+    }
+
+    .category-card:hover .category-icon {
+        transform: rotate(5deg) scale(1.1);
+    }
+
+    .category-card h5 {
+        color: #1a202c;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .category-card p {
+        color: #718096;
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    /* ========== Governorates Grid ========== */
+    .governorates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .governorate-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        text-decoration: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+    }
+
+    .governorate-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .governorate-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        transition: all 0.3s;
+    }
+
+    .governorate-card:hover .governorate-icon {
+        transform: rotate(5deg) scale(1.1);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .governorate-card h6 {
+        color: #1a202c;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .governorate-stats {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: #718096;
+    }
+
+    /* ========== Business Cards ========== */
+    .businesses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+
+    .business-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+    }
+
+    .business-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    /* Cover Image */
+    .business-cover {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+    }
+
+    .business-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cover-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .business-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 10;
+    }
+
+    .business-badge.featured {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #000;
+    }
+
+    .business-badge.new {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    /* Card Body */
+    .business-body {
+        padding: 1.5rem;
+    }
+
+    .business-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .business-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: -40px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .business-logo.placeholder {
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e0;
+        font-size: 1.5rem;
+    }
+
+    .business-info {
+        flex: 1;
+    }
+
+    .business-info h5 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+    }
+
+    .business-info a {
+        color: #1a202c;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .business-info a:hover {
+        color: #667eea;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #f7fafc;
+        color: #4a5568;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .business-desc {
+        color: #718096;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .business-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.875rem;
+    }
+
+    .location {
+        color: #718096;
+    }
+
+    .location i {
+        color: #667eea;
+    }
+
+    .rating i {
+        color: #ffc107;
+        font-size: 0.875rem;
+    }
+
+    .rating small {
+        color: #718096;
+        margin-right: 0.25rem;
+    }
+
+    .views {
+        color: #718096;
+    }
+
+    .views i {
+        color: #17a2b8;
+    }
+
+    /* ========== Buttons ========== */
+    .btn-custom {
+        display: inline-block;
+        padding: 0.875rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-outline {
+        background: white;
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .btn-outline:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-info {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        color: white;
+    }
+
+    .btn-info:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
+    }
+
+    /* ========== CTA Section ========== */
+    .cta-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 5rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 30px 30px;
+    }
+
+    .cta-icon {
+        font-size: 3rem;
+        color: #ffd700;
+        margin-bottom: 1.5rem;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .cta-subtitle {
+        font-size: 1.25rem;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 2rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 3rem;
+    }
+
+    .btn-cta {
+        padding: 1rem 2.5rem;
+        background: #ffd700;
+        color: #000;
+        font-weight: 700;
+    }
+
+    .btn-cta:hover {
+        background: #ffed4e;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .btn-cta-outline {
+        padding: 1rem 2.5rem;
+        background: transparent;
+        border: 2px solid white;
+        color: white;
+    }
+
+    .btn-cta-outline:hover {
+        background: white;
+        color: #667eea;
+    }
+
+    .cta-features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .feature-item {
+        display: flex;
+        gap: 1rem;
+        text-align: right;
+        color: white;
+    }
+
+    .feature-item i {
+        font-size: 1.5rem;
+        color: #ffd700;
+        flex-shrink: 0;
+    }
+
+    .feature-item h6 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .feature-item small {
+        opacity: 0.8;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 1024px) {
+        .businesses-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .categories-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .governorates-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .businesses-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cta-features {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .cta-title {
+            font-size: 1.75rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .search-wrapper {
+            flex-direction: column;
+            border-radius: 15px;
+        }
+
+        .search-btn {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .governorates-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* في CSS الصفحة الرئيسية */
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60'...");
+        pointer-events: none;  /* ✅ ده السطر المهم */
+        z-index: 1;  /* ✅ تحت المحتوى */
+    }
+
+    /* تأكد إن المحتوى فوق الـ overlay */
+    .hero-section .container {
+        position: relative;
+        z-index: 10;  /* ✅ فوق الـ overlay */
+    }
+
+</style>
+{% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}دليل الإسماعيلية - دليلك الشامل لجميع الخدمات والمحلات{% endblock %}
+
+{% block content %}
+
+<!-- ============================================
+     🌟 HERO SECTION - محسّن ومميز
+     ============================================ -->
+<section class="hero-section position-relative overflow-hidden">
+    <!-- Background Animation -->
+    <div class="hero-bg-animation"></div>
+    
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-10 col-xl-8 mx-auto text-center">
+                
+                <!-- Main Title -->
+                <h1 class="display-3 fw-bold mb-4 text-white animate__animated animate__fadeInDown">
+                    مرحباً بك في <span class="text-warning">دليل الإسماعيلية</span> 🌟
+                </h1>
+                
+                <!-- Subtitle -->
+                <p class="lead mb-5 text-white-75 fs-5 animate__animated animate__fadeInUp">
+                    اكتشف أفضل المحلات والخدمات في محافظة الإسماعيلية
+                    <br>
+                    <span class="badge bg-warning text-dark mt-2 px-3 py-2">
+                        <i class="fas fa-fire"></i> أكثر من {{ featured_businesses.count|add:latest_businesses.count }} محل وخدمة
+                    </span>
+                </p>
+                
+                <!-- Search Box - Enhanced -->
+                <form method="GET" action="{% url 'business_list' %}" class="search-box-modern mb-4 animate__animated animate__zoomIn">
+                    <div class="input-group input-group-lg shadow-lg">
+                        <span class="input-group-text bg-white border-0">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
+                        <input type="text" 
+                               name="q" 
+                               class="form-control border-0 py-4" 
+                               placeholder="ابحث عن محل، خدمة، منتج، أو منطقة..."
+                               style="font-size: 1.1rem;">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold">
+                            <i class="fas fa-search me-2"></i> بحث
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Quick Stats -->
+                <div class="row g-3 mt-5 text-white">
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-store fs-2 mb-2 text-warning"></i>
+                            <h3 class="mb-0 fw-bold">{{ featured_businesses.count|add:latest_businesses.count }}+</h3>
+                            <small>محل وخدمة</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-layer-group fs-2 mb-2 text-warning"></i>
+                            <h3 class="mb-0 fw-bold">{{ categories.count }}+</h3>
+                            <small>فئة متنوعة</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-map-marked-alt fs-2 mb-2 text-warning"></i>
+                            <h3 class="mb-0 fw-bold">15+</h3>
+                            <small>حي ومنطقة</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-star fs-2 mb-2 text-warning"></i>
+                            <h3 class="mb-0 fw-bold">100%</h3>
+                            <small>موثوقية</small>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <!-- Wave Divider -->
+
+    
+</section>
+
+
+<!-- ============================================
+     📂 CATEGORIES SECTION - Grid محسّن
+     ============================================ -->
+<section class="py-5 bg-light">
+    <div class="container">
+        
+        <!-- Section Header -->
+        <div class="text-center mb-5">
+            <span class="badge bg-primary px-3 py-2 mb-3">استكشف الفئات</span>
+            <h2 class="fw-bold display-6 mb-3">تصفح حسب الفئة</h2>
+            <p class="text-muted fs-5">اختر الفئة المناسبة لك واكتشف أفضل الخدمات</p>
+        </div>
+        
+        <!-- Categories Grid -->
+        <div class="row g-4 mb-4">
+            {% for category in categories %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'category_detail' category.slug %}" class="text-decoration-none">
+                    <div class="card category-card-modern hover-lift h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper mb-3">
+                                <i class="fas {% if category.icon %}{{ category.icon }}{% else %}fa-store{% endif %} fs-1"></i>
+                            </div>
+                            <h5 class="card-title fw-bold mb-2">{{ category.name }}</h5>
+                            <p class="text-muted small mb-0">
+                                <i class="fas fa-store-alt me-1"></i>
+                                {{ category.businesses.count }} محل
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- View All Button -->
+        <div class="text-center">
+            <a href="{% url 'categories' %}" class="btn btn-outline-primary btn-lg px-5">
+                عرض جميع الفئات <i class="fas fa-arrow-left me-2"></i>
+            </a>
+        </div>
+        
+    </div>
+</section>
+
+<!-- ============================================
+     🗺️ GOVERNORATES SECTION - جديد
+     ============================================ -->
+<section class="py-5 bg-white">
+    <div class="container">
+        
+        <!-- Section Header -->
+        <div class="text-center mb-5">
+            <span class="badge bg-info px-3 py-2 mb-3">
+                <i class="fas fa-map-marked-alt me-2"></i>تصفح بالمحافظة
+            </span>
+            <h2 class="fw-bold display-6 mb-3">المحافظات المتاحة</h2>
+            <p class="text-muted fs-5">اختر محافظتك واكتشف أفضل المحلات والخدمات</p>
+        </div>
+        
+        <!-- Governorates Grid -->
+        {% if governorates %}
+        <div class="row g-4 mb-4">
+            {% for governorate in governorates %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="{% url 'governorate_detail' governorate.slug %}" class="text-decoration-none">
+                    <div class="card governorate-card-modern hover-lift h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-3">
+                            <div class="governorate-icon mb-3">
+                                <i class="{{ governorate.icon|default:'fas fa-city' }} fs-2 text-info"></i>
+                            </div>
+                            <h6 class="card-title fw-bold mb-2">{{ governorate.name }}</h6>
+                            <div class="d-flex justify-content-center gap-2 small text-muted">
+                                <span>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ governorate.districts.count }}
+                                </span>
+                                <span>
+                                    <i class="fas fa-store"></i>
+                                    {{ governorate.business_count }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- View All Button -->
+        <div class="text-center">
+            <a href="{% url 'governorates' %}" class="btn btn-outline-info btn-lg px-5">
+                <i class="fas fa-map-marked-alt me-2"></i>
+                عرض جميع المحافظات
+            </a>
+        </div>
+        {% endif %}
+        
+    </div>
+</section>
+
+
+<!-- ============================================
+     ⭐ FEATURED BUSINESSES
+     ============================================ -->
+{% if featured_businesses %}
+<section class="py-5 bg-white">
+    <div class="container">
+        
+        <!-- Section Header -->
+        <div class="text-center mb-5">
+            <span class="badge bg-warning text-dark px-3 py-2 mb-3">
+                <i class="fas fa-crown me-2"></i>المميزون
+            </span>
+            <h2 class="fw-bold display-6 mb-3">المحلات المميزة</h2>
+            <p class="text-muted fs-5">أفضل المحلات في الإسماعيلية حسب تقييمات العملاء</p>
+        </div>
+        
+        <!-- Businesses Grid -->
+        <div class="row g-4">
+            {% for business in featured_businesses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card business-card-modern h-100 border-0 shadow-sm hover-lift">
+                    
+                    <!-- Badge -->
+                    <span class="badge bg-gradient-primary position-absolute top-0 start-0 m-3 px-3 py-2">
+                        <i class="fas fa-star me-1"></i> مميز
+                    </span>
+                    
+                    <div class="card-body p-4">
+                        
+                        <!-- Header -->
+                        <div class="d-flex align-items-start mb-3">
+                            {% if business.logo %}
+                            <img src="{{ business.logo.url }}" 
+                                 alt="{{ business.name }}" 
+                                 class="business-logo-modern me-3">
+                            {% else %}
+                            <div class="business-logo-modern me-3 bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-store text-primary fs-3"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-2 fw-bold">
+                                    <a href="{% url 'business_detail' business.slug %}" 
+                                       class="text-dark text-decoration-none stretched-link">
+                                        {{ business.name }}
+                                    </a>
+                                </h5>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-tag me-1"></i>{{ business.category.name }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <p class="card-text text-muted mb-3">
+                            {{ business.description|truncatewords:15 }}
+                        </p>
+                        
+                        <!-- Footer -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <div class="text-muted small">
+                                <i class="fas fa-map-marker-alt text-primary me-1"></i>
+                                {{ business.district.name }}
+                            </div>
+                            
+                            {% if business.average_rating > 0 %}
+                            <div class="rating-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= business.average_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <small class="text-muted me-1">({{ business.total_reviews }})</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</section>
+{% endif %}
+
+
+<!-- ============================================
+     🆕 LATEST BUSINESSES
+     ============================================ -->
+{% if latest_businesses %}
+<section class="py-5 bg-light">
+    <div class="container">
+        
+        <!-- Section Header -->
+        <div class="text-center mb-5">
+            <span class="badge bg-success px-3 py-2 mb-3">
+                <i class="fas fa-sparkles me-2"></i>جديد
+            </span>
+            <h2 class="fw-bold display-6 mb-3">آخر المحلات المضافة</h2>
+            <p class="text-muted fs-5">أحدث الإضافات لدليل الإسماعيلية</p>
+        </div>
+        
+        <!-- Businesses Grid -->
+        <div class="row g-4 mb-4">
+            {% for business in latest_businesses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card business-card-modern h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body p-4">
+                        
+                        <!-- Header -->
+                        <div class="d-flex align-items-start mb-3">
+                            {% if business.logo %}
+                            <img src="{{ business.logo.url }}" 
+                                 alt="{{ business.name }}" 
+                                 class="business-logo-modern me-3">
+                            {% else %}
+                            <div class="business-logo-modern me-3 bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-store text-success fs-3"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-2 fw-bold">
+                                    <a href="{% url 'business_detail' business.slug %}" 
+                                       class="text-dark text-decoration-none stretched-link">
+                                        {{ business.name }}
+                                    </a>
+                                </h5>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-tag me-1"></i>{{ business.category.name }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <p class="card-text text-muted mb-3">
+                            {{ business.description|truncatewords:15 }}
+                        </p>
+                        
+                        <!-- Footer -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <div class="text-muted small">
+                                <i class="fas fa-map-marker-alt text-success me-1"></i>
+                                {{ business.district.name }}
+                            </div>
+                            <div class="text-muted small">
+                                <i class="fas fa-eye me-1"></i>
+                                {{ business.view_count }} مشاهدة
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- View All Button -->
+        <div class="text-center">
+            <a href="{% url 'business_list' %}" class="btn btn-primary btn-lg px-5 shadow">
+                <i class="fas fa-store me-2"></i> عرض جميع المحلات
+            </a>
+        </div>
+        
+    </div>
+</section>
+{% endif %}
+
+
+<!-- ============================================
+     📢 CTA SECTION - دعوة للتسجيل
+     ============================================ -->
+<section class="cta-section py-5 position-relative overflow-hidden">
+    <div class="cta-bg-pattern"></div>
+    
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <div class="mb-4">
+                    <i class="fas fa-rocket fs-1 text-warning mb-3"></i>
+                </div>
+                <h2 class="fw-bold display-5 mb-4">عندك محل أو خدمة؟</h2>
+                <p class="lead mb-4 fs-4">
+                    انضم لدليل الإسماعيلية واوصل لآلاف العملاء المحتملين
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-5 py-3 fw-bold shadow-lg">
+                        <i class="fas fa-user-plus me-2"></i> سجل محلك الآن مجاناً
+                    </a>
+                    <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg px-5 py-3 fw-bold">
+                        <i class="fas fa-phone me-2"></i> تواصل معنا
+                    </a>
+                </div>
+                
+                <!-- Features -->
+                <div class="row g-3 mt-5 text-start">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle text-warning fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">تسجيل مجاني</h6>
+                                <small class="text-white-75">ابدأ بدون أي تكلفة</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle text-warning fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">وصول لآلاف العملاء</h6>
+                                <small class="text-white-75">زيادة في المبيعات</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle text-warning fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">إدارة سهلة</h6>
+                                <small class="text-white-75">لوحة تحكم بسيطة</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+
+<!-- ============================================
+     EXTRA CSS
+     ============================================ -->
+{% block extra_css %}
+<style>
+    /* Hero Section Enhancements */
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 100px 0 120px;
+        position: relative;
+    }
+    
+    .hero-bg-animation {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+    }
+    
+    .min-vh-50 {
+        min-height: 50vh;
+    }
+    
+    .search-box-modern {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .search-box-modern .input-group {
+        border-radius: 50px;
+        overflow: hidden;
+        background: white;
+    }
+    
+    .search-box-modern .form-control:focus {
+        box-shadow: none;
+    }
+    
+    .stat-card {
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-5px);
+    }
+    
+    /* Wave Divider */
+    .wave-divider {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+    }
+    
+    .wave-divider svg {
+        position: relative;
+        display: block;
+        width: calc(100% + 1.3px);
+        height: 60px;
+    }
+    
+    /* Category Cards Modern */
+    .category-card-modern {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .category-card-modern:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+    }
+    
+    .category-card-modern .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        transition: all 0.3s;
+    }
+    
+    .category-card-modern:hover .icon-wrapper {
+        transform: rotate(5deg) scale(1.1);
+    }
+    
+    /* Business Cards Modern */
+    .business-card-modern {
+        transition: all 0.3s ease;
+    }
+    
+    .business-card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+    }
+    
+    .business-logo-modern {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 15px;
+        border: 3px solid #f8f9fa;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 80px 0;
+    }
+    
+    .cta-bg-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 30px 30px;
+        opacity: 0.3;
+    }
+    
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+    }
+    
+    .text-white-75 {
+        color: rgba(255,255,255,0.75);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 60px 0 80px;
+        }
+        
+        .display-3 {
+            font-size: 2rem;
+        }
+        
+        .display-5 {
+            font-size: 1.8rem;
+        }
+    }
+
+        /* Governorate Cards */
+    .governorate-card-modern {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-radius: 15px;
+    }
+    
+    .governorate-card-modern:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2) !important;
+    }
+    
+    .governorate-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        border-radius: 15px;
+        color: white !important;
+        transition: all 0.3s;
+    }
+    
+    .governorate-card-modern:hover .governorate-icon {
+        transform: rotate(5deg) scale(1.1);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .governorate-card-modern:hover .governorate-icon i {
+        color: white !important;
+    }
+
+</style>
+{% endblock %} {% endcomment %}

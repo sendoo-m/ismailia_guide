@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}التقارير والإحصائيات - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reports-container {
+        padding: 40px 0;
+        background: #f8f9fa;
+    }
+    
+    .report-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .report-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stat-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .stat-box h3 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="reports-container">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">
+                <i class="fas fa-chart-line text-primary"></i>
+                التقارير والإحصائيات
+            </h2>
+            <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+            </a>
+        </div>
+        
+        <!-- الإحصائيات السريعة -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <i class="fas fa-store fs-1 mb-3"></i>
+                    <h3>{{ total_businesses }}</h3>
+                    <p class="mb-0">محل مسجل</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-eye fs-1 mb-3"></i>
+                    <h3>{{ total_views }}</h3>
+                    <p class="mb-0">إجمالي المشاهدات</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-box fs-1 mb-3"></i>
+                    <h3>{{ total_products }}</h3>
+                    <p class="mb-0">منتج/خدمة</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-box" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-star fs-1 mb-3"></i>
+                    <h3>{{ total_reviews }}</h3>
+                    <p class="mb-0">تقييم</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- تفاصيل المحلات -->
+        <div class="report-card">
+            <h4 class="fw-bold mb-4">
+                <i class="fas fa-chart-bar text-primary"></i>
+                تفاصيل محلاتك
+            </h4>
+            
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>المحل</th>
+                            <th>الفئة</th>
+                            <th>المشاهدات</th>
+                            <th>المنتجات</th>
+                            <th>التقييمات</th>
+                            <th>متوسط التقييم</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for business in businesses %}
+                        <tr>
+                            <td>
+                                <strong>{{ business.name }}</strong>
+                            </td>
+                            <td>{{ business.category.name }}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ business.view_count }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ business.products.count }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning text-dark">{{ business.total_reviews }}</span>
+                            </td>
+                            <td>
+                                {% if business.average_rating > 0 %}
+                                <span style="color: #ffc107;">
+                                    {{ business.average_rating|floatformat:1 }} ⭐
+                                </span>
+                                {% else %}
+                                <span class="text-muted">لا يوجد</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if business.is_active and business.is_verified %}
+                                <span class="badge bg-success">نشط</span>
+                                {% else %}
+                                <span class="badge bg-secondary">معطل</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- أفضل المنتجات -->
+        <div class="report-card">
+            <h4 class="fw-bold mb-4">
+                <i class="fas fa-trophy text-warning"></i>
+                أفضل المنتجات (الأكثر طلباً)
+            </h4>
+            
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>المنتج</th>
+                            <th>المحل</th>
+                            <th>السعر</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ product.name }}</strong></td>
+                            <td>{{ product.business.name }}</td>
+                            <td>{{ product.price }} جنيه</td>
+                            <td>
+                                {% if product.is_available %}
+                                <span class="badge bg-success">متوفر</span>
+                                {% else %}
+                                <span class="badge bg-secondary">غير متوفر</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">لا توجد منتجات بعد</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- نصائح -->
+        <div class="report-card" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border: 2px solid #667eea;">
+            <h4 class="fw-bold mb-3">
+                <i class="fas fa-lightbulb text-warning"></i>
+                نصائح لزيادة المبيعات
+            </h4>
+            <ul class="mb-0">
+                <li class="mb-2">أضف صوراً واضحة وجذابة لمنتجاتك</li>
+                <li class="mb-2">حدّث الأسعار بانتظام</li>
+                <li class="mb-2">رُد على تقييمات العملاء</li>
+                <li class="mb-2">قدم عروضاً خاصة في المناسبات</li>
+                <li class="mb-0">تأكد من دقة معلومات الاتصال والموقع</li>
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,155 @@
+/* الخطوط - بدون التأثير على الأيقونات */
+body, h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select, label, span, div {
+    font-family: 'Cairo', sans-serif;
+}
+
+/* عام */
+body {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Navbar */
+.navbar-brand {
+    font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+    margin: 0 0.5rem;
+    transition: color 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #0d6efd !important;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    margin-bottom: 40px;
+}
+
+.search-box {
+    background: white;
+    border-radius: 50px;
+    padding: 5px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    padding: 12px 20px;
+}
+
+.search-box button {
+    border-radius: 50px;
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.category-card {
+    text-align: center;
+    padding: 30px;
+    cursor: pointer;
+}
+
+.category-card i {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.category-card h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.category-card:hover i {
+    transform: scale(1.1);
+    transition: transform 0.3s;
+}
+
+/* Business Card */
+.business-card {
+    position: relative;
+}
+
+.business-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 3px solid white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.rating-stars {
+    color: #ffc107;
+}
+
+.badge-featured {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+footer a:hover {
+    color: #fff !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 50px 0;
+    }
+    
+    .category-card {
+        padding: 20px;
+    }
+    
+    .category-card i {
+        font-size: 2rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}

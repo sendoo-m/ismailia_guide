@@ -1,0 +1,255 @@
+<!-- Vendor Dashboard Sidebar -->
+<aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+        <div class="d-flex align-items-center">
+            <div class="sidebar-icon me-3">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div>
+                <h5 class="mb-0">لوحة التاجر</h5>
+                <small class="text-white-50">{{ user.username }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <!-- الرئيسية -->
+        <a href="{% url 'vendor_dashboard' %}" 
+           class="nav-link {% if request.resolver_match.url_name == 'vendor_dashboard' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        
+        <!-- المحلات -->
+        <div class="nav-divider">
+            <i class="fas fa-store me-2"></i>
+            محلاتي ({{ total_businesses|default:0 }})
+        </div>
+        
+        {% if businesses %}
+            {% for business in businesses %}
+            <a href="{% url 'edit_business' business.pk %}" 
+               class="nav-link nav-link-sub">
+                <i class="fas fa-{% if business.is_active %}check-circle text-success{% else %}clock text-warning{% endif %}"></i>
+                <span>{{ business.name|truncatewords:4 }}</span>
+                {% if business.is_featured %}
+                <span class="badge bg-primary ms-auto">
+                    <i class="fas fa-crown"></i>
+                </span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        {% else %}
+            <div class="nav-link nav-link-sub text-muted">
+                <i class="fas fa-info-circle"></i>
+                <span>لا توجد محلات</span>
+            </div>
+        {% endif %}
+        
+        <!-- إضافة محل -->
+        <a href="{% url 'register' %}" class="nav-link nav-link-add">
+            <i class="fas fa-plus-circle"></i>
+            <span>إضافة محل جديد</span>
+        </a>
+        
+        <!-- الإدارة -->
+        <div class="nav-divider">
+            <i class="fas fa-cog me-2"></i>
+            الإدارة
+        </div>
+        
+        <a href="{% url 'manage_products' %}" 
+           class="nav-link {% if 'product' in request.path %}active{% endif %}">
+            <i class="fas fa-box"></i>
+            <span>المنتجات</span>
+            <span class="badge bg-light text-dark ms-auto">{{ total_products|default:0 }}</span>
+        </a>
+        
+        <a href="{% url 'reports' %}" 
+           class="nav-link {% if 'report' in request.path %}active{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <span>التقارير والإحصائيات</span>
+        </a>
+        
+        <a href="{% url 'upgrade_subscription_page' %}" 
+           class="nav-link {% if 'subscription' in request.path %}active{% endif %}">
+            <i class="fas fa-crown"></i>
+            <span>الباقات والاشتراكات</span>
+        </a>
+        
+        <a href="{% url 'dashboard_settings' %}" 
+           class="nav-link {% if 'settings' in request.path %}active{% endif %}">
+            <i class="fas fa-user-cog"></i>
+            <span>الإعدادات</span>
+        </a>
+        
+        <!-- روابط إضافية -->
+        <div class="nav-divider mt-auto">
+            <i class="fas fa-ellipsis-h me-2"></i>
+            روابط سريعة
+        </div>
+        
+        <a href="{% url 'home' %}" class="nav-link" target="_blank">
+            <i class="fas fa-globe"></i>
+            <span>عرض الموقع</span>
+            <i class="fas fa-external-link-alt ms-auto small"></i>
+        </a>
+        
+        <a href="{% url 'contact' %}" class="nav-link">
+            <i class="fas fa-headset"></i>
+            <span>الدعم الفني</span>
+        </a>
+        
+        <hr class="my-3 opacity-25">
+        
+        <a href="{% url 'logout' %}" class="nav-link text-danger">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>تسجيل الخروج</span>
+        </a>
+    </nav>
+</aside>
+
+<style>
+    .dashboard-sidebar {
+        width: 280px;
+        background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+        border-left: 1px solid rgba(255,255,255,0.1);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar-header {
+        padding: 25px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-icon {
+        width: 45px;
+        height: 45px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+    
+    .sidebar-nav {
+        padding: 15px 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .nav-divider {
+        padding: 15px 20px 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.5);
+        letter-spacing: 0.5px;
+        margin-top: 5px;
+    }
+    
+    .sidebar-nav .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: all 0.3s;
+        border-right: 3px solid transparent;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+        background: rgba(255,255,255,0.08);
+        color: white;
+        border-right-color: #667eea;
+    }
+    
+    .sidebar-nav .nav-link.active {
+        background: rgba(102, 126, 234, 0.15);
+        color: #a5b4fc;
+        font-weight: 600;
+        border-right-color: #667eea;
+    }
+    
+    .sidebar-nav .nav-link i {
+        width: 22px;
+        margin-left: 12px;
+        font-size: 1rem;
+    }
+    
+    .sidebar-nav .nav-link span {
+        flex: 1;
+    }
+    
+    .sidebar-nav .nav-link .badge {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+    
+    .nav-link-sub {
+        padding-right: 40px !important;
+        font-size: 0.9rem;
+    }
+    
+    .nav-link-sub i {
+        font-size: 0.75rem;
+    }
+    
+    .nav-link-add {
+        background: rgba(102, 126, 234, 0.1);
+        color: #a5b4fc !important;
+        margin: 5px 15px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    
+    .nav-link-add:hover {
+        background: rgba(102, 126, 234, 0.2);
+        color: white !important;
+        border-right-color: transparent !important;
+    }
+    
+    /* Scrollbar Styling */
+    .dashboard-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .dashboard-sidebar::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    .dashboard-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
+        border-radius: 10px;
+    }
+    
+    .dashboard-sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255,255,255,0.3);
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .dashboard-sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+            border-left: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-nav {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    }
+</style>

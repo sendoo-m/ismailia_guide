@@ -1,0 +1,704 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ governorate.name }} - دليل المحافظات{% endblock %}
+
+{% block meta_description %}
+اكتشف المحلات والخدمات في {{ governorate.name }} - {{ total_businesses }} محل في {{ total_districts }} حي
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="governorate-hero" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9)), 
+         url('{% if governorate.image %}{{ governorate.image.url }}{% else %}{% static 'images/default-gov.jpg' %}{% endif %}') center/cover;">
+    <div class="container">
+        <div class="row align-items-center py-5">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <div class="gov-icon mb-3">
+                    <i class="{{ governorate.icon|default:'fas fa-city' }} fa-4x"></i>
+                </div>
+                <h1 class="display-3 fw-bold mb-3">{{ governorate.name }}</h1>
+                {% if governorate.name_en %}
+                <p class="lead opacity-75 mb-3">{{ governorate.name_en }}</p>
+                {% endif %}
+                {% if governorate.description %}
+                <p class="lead mb-4">{{ governorate.description }}</p>
+                {% endif %}
+                
+                <!-- Quick Stats -->
+                <div class="row g-3 mt-4">
+                    <div class="col-md-4">
+                        <div class="stat-box-hero">
+                            <h3 class="mb-0">{{ total_businesses }}</h3>
+                            <p class="mb-0">محل نشط</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-box-hero">
+                            <h3 class="mb-0">{{ total_districts }}</h3>
+                            <p class="mb-0">حي ومنطقة</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-box-hero">
+                            <h3 class="mb-0">{{ categories.count }}</h3>
+                            <p class="mb-0">فئة متاحة</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filters & Search Section -->
+<section class="filters-section bg-light py-4 sticky-top shadow-sm" style="top: 76px; z-index: 100;">
+    <div class="container">
+        <form method="get" id="filterForm">
+            <div class="row g-3 align-items-end">
+                <!-- Search -->
+                <div class="col-lg-4">
+                    <label class="form-label small fw-semibold">
+                        <i class="fas fa-search me-1"></i>البحث
+                    </label>
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="ابحث عن محل..." 
+                           value="{{ search_query }}">
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="col-lg-3">
+                    <label class="form-label small fw-semibold">
+                        <i class="fas fa-tags me-1"></i>الفئة
+                    </label>
+                    <select name="category" class="form-select" onchange="this.form.submit()">
+                        <option value="">جميع الفئات</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>
+                            {{ cat.name }} ({{ cat.business_count }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- District Filter -->
+                <div class="col-lg-3">
+                    <label class="form-label small fw-semibold">
+                        <i class="fas fa-map-marker-alt me-1"></i>الحي
+                    </label>
+                    <select name="district" class="form-select" onchange="this.form.submit()">
+                        <option value="">جميع الأحياء</option>
+                        {% for district in districts %}
+                        <option value="{{ district.slug }}" {% if selected_district == district.slug %}selected{% endif %}>
+                            {{ district.name }} ({{ district.business_count }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Sort -->
+                <div class="col-lg-2">
+                    <label class="form-label small fw-semibold">
+                        <i class="fas fa-sort me-1"></i>الترتيب
+                    </label>
+                    <select name="order" class="form-select" onchange="this.form.submit()">
+                        <option value="-created_at" {% if order_by == '-created_at' %}selected{% endif %}>الأحدث</option>
+                        <option value="name" {% if order_by == 'name' %}selected{% endif %}>الاسم</option>
+                        <option value="featured" {% if order_by == 'featured' %}selected{% endif %}>المميزة</option>
+                    </select>
+                </div>
+            </div>
+            
+            {% if selected_category or selected_district or search_query %}
+            <div class="mt-3">
+                <a href="{% url 'governorate_detail' governorate.slug %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>إلغاء الفلاتر
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</section>
+
+<!-- Businesses Grid -->
+<section class="businesses-section py-5">
+    <div class="container">
+        
+        {% if businesses %}
+        <!-- Results Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                <i class="fas fa-store text-primary me-2"></i>
+                المحلات المتاحة
+            </h2>
+            <span class="badge bg-primary fs-6">{{ total_businesses }} محل</span>
+        </div>
+        
+        <!-- Businesses Grid -->
+        <div class="row g-4">
+            {% for business in businesses %}
+            <div class="col-lg-4 col-md-6">
+                <div class="business-card h-100">
+                    <!-- Business Image -->
+                    <div class="business-image-wrapper">
+                        {% if business.logo %}
+                        <img src="{{ business.logo.url }}" alt="{{ business.name }}" class="business-image">
+                        {% else %}
+                        <div class="business-image-placeholder">
+                            <i class="{{ business.category.icon|default:'fas fa-store' }} fa-3x"></i>
+                        </div>
+                        {% endif %}
+                        
+                        {% if business.is_featured %}
+                        <span class="featured-badge">
+                            <i class="fas fa-star me-1"></i>مميز
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Business Info -->
+                    <div class="business-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="business-title mb-0">{{ business.name }}</h5>
+                            {% if business.is_verified %}
+                            <i class="fas fa-check-circle text-success" title="موثق"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-tag me-1"></i>{{ business.category.name }}
+                        </p>
+                        
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ business.district.name }}
+                        </p>
+                        
+                        {% if business.description %}
+                        <p class="business-description">{{ business.description|truncatewords:15 }}</p>
+                        {% endif %}
+                        
+                        <!-- Contact Info -->
+                        <div class="business-contact">
+                            {% if business.phone %}
+                            <a href="tel:{{ business.phone }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-phone me-1"></i>اتصل
+                            </a>
+                            {% endif %}
+                            {% if business.whatsapp %}
+                            <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                <i class="fab fa-whatsapp me-1"></i>واتساب
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{% url 'business_detail' business.slug %}" class="btn btn-primary w-100 mt-3">
+                            <i class="fas fa-arrow-left me-2"></i>عرض التفاصيل
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if businesses.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if businesses.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ businesses.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in businesses.paginator.page_range %}
+                {% if businesses.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > businesses.number|add:'-3' and num < businesses.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if businesses.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ businesses.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state text-center py-5">
+            <i class="fas fa-store-slash fa-4x text-muted opacity-25 mb-4"></i>
+            <h3 class="text-muted mb-3">لا توجد محلات متاحة</h3>
+            <p class="text-muted">
+                {% if search_query or selected_category or selected_district %}
+                جرب تغيير الفلاتر أو البحث
+                {% else %}
+                لم يتم إضافة محلات في هذه المحافظة بعد
+                {% endif %}
+            </p>
+            {% if search_query or selected_category or selected_district %}
+            <a href="{% url 'governorate_detail' governorate.slug %}" class="btn btn-primary mt-3">
+                <i class="fas fa-times me-2"></i>إلغاء الفلاتر
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+    </div>
+</section>
+
+<style>
+/* Hero Section */
+.governorate-hero {
+    min-height: 400px;
+    position: relative;
+}
+
+.gov-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.stat-box-hero {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.stat-box-hero:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-5px);
+}
+
+.stat-box-hero h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+/* Filters Section */
+.filters-section {
+    background: white !important;
+}
+
+/* Business Card */
+.business-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.business-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.business-image-wrapper {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.business-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.business-card:hover .business-image {
+    transform: scale(1.1);
+}
+
+.business-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.featured-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.business-body {
+    padding: 20px;
+}
+
+.business-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.business-description {
+    color: #718096;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.business-contact {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .governorate-hero {
+        min-height: 300px;
+    }
+    
+    .stat-box-hero h3 {
+        font-size: 2rem;
+    }
+    
+    .filters-section {
+        position: relative !important;
+        top: 0 !important;
+    }
+}
+</style>
+
+{% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ governorate.name }} - المحلات والخدمات{% endblock %}
+
+{% block meta_description %}تصفح جميع المحلات والخدمات في {{ governorate.name }}. {{ governorate.description }}{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="governorate-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb text-white-50">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'home' %}" class="text-white">الرئيسية</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'governorates' %}" class="text-white">المحافظات</a>
+                        </li>
+                        <li class="breadcrumb-item active text-white">{{ governorate.name }}</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="{{ governorate.icon|default:'fas fa-city' }} me-3"></i>
+                    {{ governorate.name }}
+                </h1>
+                
+                {% if governorate.description %}
+                <p class="lead mb-0">{{ governorate.description }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                <div class="stats-box bg-white text-dark rounded p-4 shadow">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <h2 class="text-primary mb-0">{{ districts.count }}</h2>
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    حي
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <h2 class="text-success mb-0">{{ total_businesses }}</h2>
+                                <small class="text-muted">
+                                    <i class="fas fa-store me-1"></i>
+                                    محل
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Districts Section -->
+<section class="districts-section py-4 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <i class="fas fa-map-marked text-info me-2"></i>
+                الأحياء ({{ districts.count }})
+            </h5>
+        </div>
+        
+        {% if districts %}
+        <div class="districts-scroll">
+            <div class="d-flex gap-2 flex-nowrap overflow-auto pb-2">
+                <a href="?" class="district-badge {% if not selected_district %}active{% endif %}">
+                    <i class="fas fa-th-large me-1"></i>
+                    الكل
+                    <span class="badge bg-primary ms-1">{{ total_businesses }}</span>
+                </a>
+                {% for district in districts %}
+                <a href="?district={{ district.slug }}" 
+                   class="district-badge {% if selected_district == district %}active{% endif %}">
+                    {{ district.name }}
+                    <span class="badge bg-primary ms-1">{{ district.business_count }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Filters Section -->
+<section class="filters-section py-3 bg-white border-bottom">
+    <div class="container">
+        <form method="GET" class="row g-3 align-items-end">
+            {% if selected_district %}
+            <input type="hidden" name="district" value="{{ selected_district.slug }}">
+            {% endif %}
+            
+            <div class="col-md-4">
+                <label class="form-label small text-muted">
+                    <i class="fas fa-filter me-1"></i>
+                    الفئة
+                </label>
+                <select name="category" class="form-select" onchange="this.form.submit()">
+                    <option value="">جميع الفئات</option>
+                    {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if selected_category == category %}selected{% endif %}>
+                        {{ category.name }} ({{ category.business_count }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label class="form-label small text-muted">
+                    <i class="fas fa-sort me-1"></i>
+                    الترتيب
+                </label>
+                <select name="order" class="form-select" onchange="this.form.submit()">
+                    <option value="-created_at">الأحدث أولاً</option>
+                    <option value="name">الاسم (أ-ي)</option>
+                    <option value="-view_count">الأكثر مشاهدة</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>
+                    تطبيق الفلاتر
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Businesses Grid -->
+<section class="businesses-section py-5">
+    <div class="container">
+        <!-- Active Filters -->
+        {% if selected_district or selected_category %}
+        <div class="active-filters mb-4">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="text-muted">
+                    <i class="fas fa-filter me-1"></i>
+                    الفلاتر النشطة:
+                </span>
+                
+                {% if selected_district %}
+                <span class="badge bg-info text-dark">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {{ selected_district.name }}
+                    <a href="?" class="text-dark ms-1">×</a>
+                </span>
+                {% endif %}
+                
+                {% if selected_category %}
+                <span class="badge bg-success">
+                    <i class="fas fa-tag me-1"></i>
+                    {{ selected_category.name }}
+                    <a href="?{% if selected_district %}district={{ selected_district.slug }}{% endif %}" class="text-white ms-1">×</a>
+                </span>
+                {% endif %}
+                
+                <a href="?" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>
+                    إزالة الكل
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Results Count -->
+        <h4 class="mb-4">
+            {% if total_businesses > 0 %}
+            <i class="fas fa-store text-success me-2"></i>
+            {{ total_businesses }} محل متاح
+            {% else %}
+            لا توجد نتائج
+            {% endif %}
+        </h4>
+        
+        <!-- Businesses Grid -->
+        {% if businesses %}
+        <div class="row g-4">
+            {% for business in businesses %}
+            <div class="col-lg-4 col-md-6">
+                {% include 'includes/business_card.html' %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if businesses.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if businesses.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ businesses.previous_page_number }}{% if selected_district %}&district={{ selected_district.slug }}{% endif %}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in businesses.paginator.page_range %}
+                <li class="page-item {% if businesses.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% if selected_district %}&district={{ selected_district.slug }}{% endif %}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endfor %}
+                
+                {% if businesses.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ businesses.next_page_number }}{% if selected_district %}&district={{ selected_district.slug }}{% endif %}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">لا توجد محلات</h4>
+            <p class="text-muted">جرب تغيير الفلاتر أو البحث في حي آخر</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .governorate-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "←";
+        color: rgba(255,255,255,0.5);
+    }
+    
+    .stats-box {
+        backdrop-filter: blur(10px);
+    }
+    
+    .districts-scroll {
+        position: relative;
+    }
+    
+    .districts-scroll::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .districts-scroll::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 10px;
+    }
+    
+    .district-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 50px;
+        text-decoration: none;
+        color: #495057;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+    }
+    
+    .district-badge:hover {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .district-badge.active {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+    
+    .district-badge .badge {
+        font-size: 0.75rem;
+    }
+    
+    .district-badge:hover .badge {
+        background: white !important;
+        color: #667eea !important;
+    }
+    
+    .active-filters .badge {
+        padding: 8px 12px;
+        font-weight: normal;
+    }
+</style>
+{% endblock %} {% endcomment %}

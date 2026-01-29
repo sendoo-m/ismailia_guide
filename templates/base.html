@@ -1,0 +1,250 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    {% include 'includes/seo_meta.html' %}
+    
+    <title>{% block title %}دليل الإسماعيلية - أشمل دليل للمحلات والخدمات{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" crossorigin="anonymous">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.png' %}">
+    
+    <meta name="theme-color" content="#667eea">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            height: 100%;
+        }
+        
+        body {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #main-content {
+            flex: 1 0 auto;
+            width: 100%;
+        }
+        
+        .footer {
+            flex-shrink: 0;
+            width: 100%;
+        }
+        
+        ::selection {
+            background: #667eea;
+            color: white;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255, 255, 255, 0.2);
+            border-top: 6px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .whatsapp-float {
+            position: fixed;
+            bottom: 100px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            background: #25d366;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 5px 20px rgba(37, 211, 102, 0.5);
+            z-index: 999;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .whatsapp-float:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 8px 30px rgba(37, 211, 102, 0.7);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .whatsapp-float {
+                left: 15px;
+                bottom: 80px;
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="text-center text-white">
+            <div class="spinner mb-4"></div>
+            <h4 class="fw-bold mb-2">دليل الإسماعيلية</h4>
+            <p class="mb-0">جاري التحميل...</p>
+        </div>
+    </div>
+    
+    <!-- Navbar -->
+    <div class="no-print">
+        {% include 'includes/navbar.html' %}
+    </div>
+    
+    <!-- Messages -->
+    <div class="no-print">
+        {% include 'includes/messages.html' %}
+    </div>
+    
+    <!-- Main Content -->
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <div class="no-print">
+        {% include 'includes/footer.html' %}
+    </div>
+    
+    <!-- WhatsApp Float Button -->
+    <a href="https://wa.me/201234567890" target="_blank" class="whatsapp-float no-print" title="تواصل معنا على واتساب">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/magic.js' %}"></script>
+    
+    <script>
+        // Preloader
+        window.addEventListener('load', function() {
+            const preloader = document.getElementById('preloader');
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500);
+            }, 300);
+        });
+        
+        // Form Submit Handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    const submitBtn = this.querySelector('[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        submitBtn.disabled = true;
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
+                        
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        }, 3000);
+                    }
+                });
+            });
+        });
+        
+        // Lazy Loading Images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.classList.add('loaded');
+                            observer.unobserve(img);
+                        }
+                    }
+                });
+            });
+            
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    </script>
+        
+    <!-- Location Select Script -->
+    <script src="{% static 'js/location-select.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

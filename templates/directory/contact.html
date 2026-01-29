@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}اتصل بنا - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 50px;
+    }
+    
+    .contact-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        height: 100%;
+    }
+    
+    .contact-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        padding: 12px 15px;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    }
+    
+    .btn-send {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 12px 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .btn-send:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .info-item {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        transition: all 0.3s;
+    }
+    
+    .info-item:hover {
+        background: #667eea;
+        color: white;
+        transform: translateX(-5px);
+    }
+    
+    .info-item i {
+        font-size: 1.5rem;
+        margin-left: 15px;
+        color: #667eea;
+    }
+    
+    .info-item:hover i {
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="contact-header">
+    <div class="container text-center">
+        <h1 class="fw-bold mb-3">
+            <i class="fas fa-headset"></i>
+            اتصل بنا
+        </h1>
+        <p class="lead">نحن هنا للإجابة على استفساراتك ومساعدتك</p>
+    </div>
+</section>
+
+<div class="container pb-5">
+    <div class="row">
+        <!-- Contact Form -->
+        <div class="col-lg-7 mb-4">
+            <div class="contact-card">
+                <h3 class="fw-bold mb-4">
+                    <i class="fas fa-envelope text-primary"></i>
+                    أرسل لنا رسالة
+                </h3>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">الاسم *</label>
+                            <input type="text" 
+                                   name="name" 
+                                   class="form-control form-control-lg" 
+                                   required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">رقم الهاتف *</label>
+                            <input type="tel" 
+                                   name="phone" 
+                                   class="form-control form-control-lg" 
+                                   required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">البريد الإلكتروني *</label>
+                        <input type="email" 
+                               name="email" 
+                               class="form-control form-control-lg" 
+                               required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">الموضوع *</label>
+                        <select name="subject" class="form-select form-select-lg" required>
+                            <option value="">اختر الموضوع...</option>
+                            <option value="inquiry">استفسار عام</option>
+                            <option value="business">تسجيل محل جديد</option>
+                            <option value="subscription">الاشتراكات والأسعار</option>
+                            <option value="technical">مشكلة تقنية</option>
+                            <option value="complaint">شكوى</option>
+                            <option value="suggestion">اقتراح</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">الرسالة *</label>
+                        <textarea name="message" 
+                                  class="form-control" 
+                                  rows="6" 
+                                  placeholder="اكتب رسالتك هنا..."
+                                  required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-send btn-lg w-100">
+                        <i class="fas fa-paper-plane"></i> إرسال الرسالة
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Contact Info -->
+        <div class="col-lg-5">
+            <!-- Quick Contact -->
+            <div class="contact-card mb-4">
+                <div class="contact-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h4 class="text-center fw-bold mb-4">تواصل معنا مباشرة</h4>
+                
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <strong>هاتف:</strong><br>
+                    <a href="tel:+201234567890" class="text-decoration-none">
+                        01234567890
+                    </a>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fab fa-whatsapp"></i>
+                    <strong>واتساب:</strong><br>
+                    <a href="https://wa.me/201234567890" 
+                       target="_blank" 
+                       class="text-decoration-none">
+                        01234567890
+                    </a>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <strong>بريد إلكتروني:</strong><br>
+                    <a href="mailto:info@ismailia-guide.com" 
+                       class="text-decoration-none">
+                        info@ismailia-guide.com
+                    </a>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>العنوان:</strong><br>
+                    الإسماعيلية، مصر
+                </div>
+            </div>
+            
+            <!-- Social Media -->
+            <div class="contact-card">
+                <h5 class="fw-bold mb-3 text-center">تابعنا على</h5>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="#" 
+                       class="btn btn-outline-primary btn-lg" 
+                       style="width: 60px; height: 60px; border-radius: 50%;">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" 
+                       class="btn btn-outline-info btn-lg" 
+                       style="width: 60px; height: 60px; border-radius: 50%;">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" 
+                       class="btn btn-outline-danger btn-lg" 
+                       style="width: 60px; height: 60px; border-radius: 50%;">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Working Hours -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="contact-card text-center">
+                <h4 class="fw-bold mb-4">
+                    <i class="fas fa-clock text-primary"></i>
+                    ساعات العمل
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>السبت - الخميس:</strong><br>
+                            9:00 صباحاً - 10:00 مساءً
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>الجمعة:</strong><br>
+                            2:00 مساءً - 10:00 مساءً
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

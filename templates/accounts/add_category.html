@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إضافة فئة جديدة - لوحة التحكم{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <main class="dashboard-main">
+        <div class="dashboard-topbar">
+            <div>
+                <h2 class="mb-0">
+                    <i class="fas fa-plus me-2"></i>
+                    إضافة فئة جديدة
+                </h2>
+                <p class="text-muted mb-0">أضف فئة جديدة للمحلات</p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">اسم الفئة *</label>
+                                <input type="text" 
+                                       name="name" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="مثال: مطاعم ومقاهي"
+                                       required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">أيقونة Font Awesome *</label>
+                                <input type="text" 
+                                       name="icon" 
+                                       class="form-control" 
+                                       value="fa-store"
+                                       placeholder="fa-store">
+                                <small class="text-muted">
+                                    <a href="https://fontawesome.com/icons" target="_blank">
+                                        <i class="fas fa-external-link-alt me-1"></i>
+                                        ابحث عن أيقونة من هنا
+                                    </a>
+                                </small>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">الوصف</label>
+                                <textarea name="description" 
+                                          class="form-control" 
+                                          rows="3"
+                                          placeholder="وصف مختصر للفئة..."></textarea>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">الترتيب</label>
+                                <input type="number" 
+                                       name="order" 
+                                       class="form-control" 
+                                       value="0"
+                                       placeholder="0">
+                                <small class="text-muted">الترتيب في عرض الفئات (الأقل يظهر أولاً)</small>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus me-2"></i> إضافة الفئة
+                                </button>
+                                
+                                <a href="{% url 'manage_categories' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i> إلغاء
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+    }
+    
+    .dashboard-topbar {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

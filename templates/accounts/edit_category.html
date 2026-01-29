@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تعديل {{ category.name }} - لوحة التحكم{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <main class="dashboard-main">
+        <div class="dashboard-topbar">
+            <div>
+                <h2 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>
+                    تعديل فئة: {{ category.name }}
+                </h2>
+                <p class="text-muted mb-0">عدّل بيانات الفئة</p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">اسم الفئة *</label>
+                                <input type="text" 
+                                       name="name" 
+                                       class="form-control form-control-lg" 
+                                       value="{{ category.name }}"
+                                       required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">أيقونة Font Awesome *</label>
+                                <input type="text" 
+                                       name="icon" 
+                                       class="form-control" 
+                                       value="{{ category.icon }}"
+                                       placeholder="fa-store">
+                                <small class="text-muted">
+                                    <a href="https://fontawesome.com/icons" target="_blank">
+                                        <i class="fas fa-external-link-alt me-1"></i>
+                                        ابحث عن أيقونة من هنا
+                                    </a>
+                                </small>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">الوصف</label>
+                                <textarea name="description" 
+                                          class="form-control" 
+                                          rows="3">{{ category.description }}</textarea>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">الترتيب</label>
+                                <input type="number" 
+                                       name="order" 
+                                       class="form-control" 
+                                       value="{{ category.order }}">
+                                <small class="text-muted">الترتيب في عرض الفئات (الأقل يظهر أولاً)</small>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           name="is_active" 
+                                           id="is_active"
+                                           {% if category.is_active %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="is_active">
+                                        الفئة نشطة
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i> حفظ التعديلات
+                                </button>
+                                
+                                <a href="{% url 'manage_categories' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i> إلغاء
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+    }
+    
+    .dashboard-topbar {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

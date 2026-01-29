@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}استيراد المنتجات من ملف CSV{% endblock %}
+
+{% block content %}
+<section class="py-4">
+  <div class="container">
+    <div class="col-lg-8 mx-auto">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="fw-bold mb-3">
+            <i class="fas fa-file-import text-primary"></i>
+            استيراد المنتجات من ملف CSV
+          </h3>
+          <p class="text-muted">
+            قم بتحميل ملف CSV يحتوي على الأعمدة: de>name, description, price, is_available, has_delivery</code>
+          </p>
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label fw-bold">اختر المحل</label>
+              <select name="business" class="form-select" required>
+                <option value="">اختر...</option>
+                {% for b in businesses %}
+                <option value="{{ b.id }}">{{ b.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">ملف CSV</label>
+              <input type="file" name="file" accept=".csv" class="form-control" required>
+              <small class="text-muted">
+                تأكد أن الترميز UTF-8 والفاصل هو كومّا (,)
+              </small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-upload"></i> استيراد
+            </button>
+            <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary">رجوع</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

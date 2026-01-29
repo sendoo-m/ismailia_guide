@@ -1,0 +1,416 @@
+{% load static %}
+
+<!-- ========================================
+     ✨ Navbar - دليل الإسماعيلية
+     ======================================== -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        
+        <!-- 🏷️ Logo & Brand -->
+        <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">
+            <i class="fas fa-map-marked-alt"></i>
+            دليل الإسماعيلية
+        </a>
+        
+        <!-- 📱 Mobile Toggle Button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- 📋 Main Navigation -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            
+            <!-- 🔗 Navigation Links (Right Side) -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                
+                <!-- الرئيسية -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">
+                        <i class="fas fa-home"></i> الرئيسية
+                    </a>
+                </li>
+                
+                <!-- جميع المحلات -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'business_list' %}">
+                        <i class="fas fa-store"></i> جميع المحلات
+                    </a>
+                </li>
+                
+                <!-- الفئات -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'categories' %}">
+                        <i class="fas fa-th-large"></i> الفئات
+                    </a>
+                </li>
+                
+                <!-- 📍 المحافظات (Dropdown) -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="governoratesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-map-marked-alt"></i> المحافظات
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-modern" aria-labelledby="governoratesDropdown">
+                        <li>
+                            <h6 class="dropdown-header">
+                                <i class="fas fa-map-marked-alt me-2 text-info"></i>
+                                تصفح بالمحافظة
+                            </h6>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        
+                        {% if navbar_governorates %}
+                            {% for gov in navbar_governorates %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'governorate_detail' gov.slug %}">
+                                    <i class="{{ gov.icon|default:'fas fa-city' }} text-info me-2"></i>
+                                    {{ gov.name }}
+                                    {% if gov.business_count > 0 %}
+                                    <span class="badge bg-light text-dark float-end">
+                                        {{ gov.business_count }}
+                                    </span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
+                        {% else %}
+                            <li>
+                                <span class="dropdown-item text-muted">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    لا توجد محافظات متاحة
+                                </span>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        {% endif %}
+                        
+                        <li>
+                            <a class="dropdown-item fw-bold text-primary" href="{% url 'governorates' %}">
+                                <i class="fas fa-th me-2"></i>
+                                عرض جميع المحافظات
+                                <i class="fas fa-arrow-left float-end mt-1"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                
+                <!-- الخريطة -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'map_view' %}">
+                        <i class="fas fa-map"></i> الخريطة
+                    </a>
+                </li>
+                
+                <!-- عن الدليل -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'about' %}">
+                        <i class="fas fa-info-circle"></i> عن الدليل
+                    </a>
+                </li>
+                
+                <!-- اتصل بنا -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contact' %}">
+                        <i class="fas fa-phone"></i> اتصل بنا
+                    </a>
+                </li>
+                
+            </ul>
+            
+            <!-- 👤 User Actions (Left Side) -->
+            <div class="d-flex align-items-center gap-2">
+                
+                {% if user.is_authenticated %}
+                    
+                    <!-- 🛡️ Admin Dropdown (Staff Only) -->
+                    {% if user.is_staff or user.is_superuser %}
+                    <div class="dropdown">
+                        <button class="btn btn-danger dropdown-toggle" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-shield-alt"></i> إدارة
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'admin_dashboard' %}">
+                                    <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                                    لوحة المسؤولين
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'manage_businesses' %}">
+                                    <i class="fas fa-store text-info me-2"></i>
+                                    إدارة المحلات
+                                    {% if pending_businesses_count %}
+                                    <span class="badge bg-warning text-dark ms-2">{{ pending_businesses_count }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'manage_categories' %}">
+                                    <i class="fas fa-tags text-success me-2"></i>
+                                    إدارة الفئات
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'manage_governorates' %}">
+                                    <i class="fas fa-map-marked-alt text-info me-2"></i>
+                                    إدارة المحافظات
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'manage_reviews' %}">
+                                    <i class="fas fa-star text-warning me-2"></i>
+                                    إدارة التقييمات
+                                    {% if pending_reviews_count %}
+                                    <span class="badge bg-info ms-2">{{ pending_reviews_count }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/admin/" target="_blank">
+                                    <i class="fas fa-tools text-secondary me-2"></i>
+                                    Django Admin
+                                    <i class="fas fa-external-link-alt ms-1 small"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 💼 Vendor Dashboard -->
+                    {% if user.user_type == 'vendor' %}
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="vendorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-tachometer-alt"></i> لوحة التحكم
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="vendorDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'vendor_dashboard' %}">
+                                    <i class="fas fa-home text-primary me-2"></i>
+                                    الصفحة الرئيسية
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'manage_products' %}">
+                                    <i class="fas fa-box text-info me-2"></i>
+                                    إدارة المنتجات
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'add_product' %}">
+                                    <i class="fas fa-plus text-success me-2"></i>
+                                    إضافة منتج
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'import_products' %}">
+                                    <i class="fas fa-file-import text-warning me-2"></i>
+                                    استيراد منتجات
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'reports' %}">
+                                    <i class="fas fa-chart-line text-info me-2"></i>
+                                    التقارير
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'upgrade_subscription_page' %}">
+                                    <i class="fas fa-crown text-warning me-2"></i>
+                                    الاشتراكات
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'dashboard_settings' %}">
+                                    <i class="fas fa-cog text-secondary me-2"></i>
+                                    الإعدادات
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 👤 User Profile Menu -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>
+                            {{ user.get_full_name|default:user.username }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <h6 class="dropdown-header">
+                                    <i class="fas fa-user me-2"></i>
+                                    {{ user.email }}
+                                </h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'dashboard_settings' %}">
+                                    <i class="fas fa-cog text-primary me-2"></i>
+                                    الإعدادات
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>
+                                    تسجيل الخروج
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                {% else %}
+                    
+                    <!-- 🚪 Guest Actions -->
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-sign-in-alt"></i> دخول
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> تسجيل محل
+                    </a>
+                    
+                {% endif %}
+                
+            </div>
+            
+        </div>
+    </div>
+</nav>
+
+
+<!-- ========================================
+     🎨 Custom Navbar Styles
+     ======================================== -->
+<style>
+    /* ============= Dropdown Styling ============= */
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-radius: 12px;
+        padding: 10px;
+        min-width: 250px;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .dropdown-menu-modern {
+        border: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        border-radius: 15px;
+        padding: 15px;
+        min-width: 280px;
+    }
+    
+    /* ============= Dropdown Items ============= */
+    .dropdown-item {
+        border-radius: 8px;
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+    
+    .dropdown-menu-modern .dropdown-item {
+        border-radius: 10px;
+        padding: 12px 15px;
+    }
+    
+    .dropdown-item:hover {
+        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        transform: translateX(-5px);
+    }
+    
+    .dropdown-item i {
+        width: 20px;
+        text-align: center;
+    }
+    
+    .dropdown-menu-modern .dropdown-item i {
+        width: 25px;
+    }
+    
+    /* ============= Dropdown Elements ============= */
+    .dropdown-divider {
+        margin: 8px 0;
+    }
+    
+    .dropdown-header {
+        font-size: 0.85rem;
+        padding: 10px 15px;
+        font-weight: 600;
+    }
+    
+    .dropdown-menu-modern .dropdown-header {
+        padding: 10px 15px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .dropdown-item .badge {
+        margin-left: auto;
+        font-size: 0.75rem;
+    }
+    
+    /* ============= Navigation Links ============= */
+    .nav-link {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        padding: 8px 15px;
+    }
+    
+    .nav-link:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea !important;
+    }
+    
+    /* ============= Buttons ============= */
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* ============= Navbar Spacing ============= */
+    .navbar .d-flex {
+        gap: 8px;
+    }
+    
+    /* ============= Responsive Design ============= */
+    @media (max-width: 991px) {
+        .navbar .d-flex {
+            flex-direction: column;
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .navbar .d-flex .btn,
+        .navbar .d-flex .dropdown {
+            width: 100%;
+        }
+        
+        .navbar .d-flex .dropdown-toggle {
+            width: 100%;
+            text-align: right;
+        }
+        
+        .dropdown-menu {
+            width: 100%;
+        }
+    }
+</style>

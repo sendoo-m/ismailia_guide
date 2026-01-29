@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ district.name }} - {{ district.governorate.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'governorates' %}">المحافظات</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'governorate_detail' district.governorate.slug %}">{{ district.governorate.name }}</a></li>
+            <li class="breadcrumb-item active">{{ district.name }}</li>
+        </ol>
+    </nav>
+    
+    <!-- District Header -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-building text-primary me-2"></i>
+                        {{ district.name }}
+                    </h1>
+                    <p class="text-muted mb-3">
+                        <i class="{{ district.governorate.icon|default:'fas fa-city' }} me-1"></i>
+                        <strong>{{ district.governorate.name }}</strong>
+                    </p>
+                    {% if district.description %}
+                    <p class="mb-0">{{ district.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex flex-column gap-2">
+                        <div class="stat-box">
+                            <h3 class="mb-0 text-primary">{{ businesses.count }}</h3>
+                            <small class="text-muted">محل نشط</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter & Search -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold">الفئة</label>
+                    <select name="category" class="form-select" onchange="this.form.submit()">
+                        <option value="">جميع الفئات</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">البحث</label>
+                    <input type="text" name="search" class="form-control" placeholder="ابحث عن محل..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> بحث
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Results Count -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">
+            {% if search_query or selected_category %}
+            نتائج البحث
+            {% else %}
+            جميع المحلات
+            {% endif %}
+            <span class="badge bg-primary">{{ businesses.count }}</span>
+        </h4>
+    </div>
+    
+    <!-- Businesses Grid -->
+    {% if businesses %}
+    <div class="row g-4 mb-4">
+        {% for business in businesses %}
+        <div class="col-lg-4 col-md-6">
+            {% include 'includes/business_card.html' %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if businesses.has_other_pages %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if businesses.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">الأولى</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ businesses.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">السابقة</a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">
+                    صفحة {{ businesses.number }} من {{ businesses.paginator.num_pages }}
+                </span>
+            </li>
+            
+            {% if businesses.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ businesses.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">التالية</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ businesses.paginator.num_pages }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">الأخيرة</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <!-- No Results -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-store-slash fa-4x text-muted mb-3 opacity-50"></i>
+            <h4 class="text-muted">لا توجد محلات في هذا الحي حالياً</h4>
+            <p class="text-muted mb-4">جرب البحث في أحياء أخرى</p>
+            <a href="{% url 'governorate_detail' district.governorate.slug %}" class="btn btn-primary">
+                <i class="fas fa-arrow-right me-2"></i>
+                عودة إلى {{ district.governorate.name }}
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Other Districts in Same Governorate -->
+    {% if other_districts %}
+    <div class="card shadow-sm border-0 mt-5">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0">
+                <i class="fas fa-building me-2 text-primary"></i>
+                أحياء أخرى في {{ district.governorate.name }}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                {% for other_district in other_districts %}
+                <div class="col-md-6 col-lg-4">
+                    <a href="{% url 'district_detail' other_district.slug %}" class="text-decoration-none">
+                        <div class="card h-100 border hover-lift">
+                            <div class="card-body">
+                                <h6 class="mb-2">{{ other_district.name }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-store me-1"></i>
+                                    {{ other_district.get_business_count }} محل
+                                </small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+</div>
+
+<style>
+    /* Stat Box */
+    .stat-box {
+        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+    }
+    
+    /* Hover Effect */
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Card Enhancements */
+    .card {
+        border-radius: 12px;
+    }
+    
+    /* Breadcrumb */
+    .breadcrumb {
+        background: #f8f9fa;
+        padding: 12px 20px;
+        border-radius: 8px;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "←";
+    }
+    
+    /* Pagination */
+    .pagination {
+        gap: 5px;
+    }
+    
+    .page-link {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        color: #667eea;
+    }
+    
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+</style>
+
+{% endblock %}

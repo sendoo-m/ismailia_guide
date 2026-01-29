@@ -1,0 +1,33 @@
+{% load static %}
+
+<!-- Basic Meta Tags -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<!-- SEO Meta Tags -->
+<title>{{ meta.title|default:"دليل الإسماعيلية - دليل شامل للمحلات والخدمات" }}</title>
+<meta name="description" content="{{ meta.description|default:'دليل شامل للمحلات التجارية والخدمات في الإسماعيلية والمحافظات المجاورة' }}">
+<meta name="keywords" content="{{ meta.keywords|default:'الإسماعيلية، دليل، محلات، خدمات، مطاعم، صيدليات' }}">
+<meta name="author" content="دليل الإسماعيلية">
+<meta name="robots" content="index, follow">
+<meta name="language" content="Arabic">
+<meta name="revisit-after" content="7 days">
+
+<!-- Open Graph Meta Tags (Facebook) -->
+<meta property="og:site_name" content="{{ meta.site_name|default:'دليل الإسماعيلية' }}">
+<meta property="og:title" content="{{ meta.title|default:'دليل الإسماعيلية' }}">
+<meta property="og:description" content="{{ meta.description|default:'دليل شامل للمحلات والخدمات' }}">
+<meta property="og:type" content="{{ meta.og_type|default:'website' }}">
+<meta property="og:url" content="{{ meta.url|default:request.build_absolute_uri }}">
+{% if meta.image %}
+<meta property="og:image" content="{{ meta.image }}">
+{% endif %}
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ meta.title|default:'دليل الإسماعيلية' }}">
+<meta name="twitter:description" content="{{ meta.description|default:'دليل شامل للمحلات والخدمات' }}">
+{% if meta.image %}
+<meta name="twitter:image" content="{{ meta.image }}">
+{% endif %}

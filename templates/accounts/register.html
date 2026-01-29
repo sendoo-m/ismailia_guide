@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تسجيل محل جديد - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-container {
+        padding: 60px 0;
+        background: #f8f9fa;
+    }
+    
+    .register-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        padding: 40px;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 40px;
+        position: relative;
+    }
+    
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e0e0e0;
+        z-index: 0;
+    }
+    
+    .step {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+        flex: 1;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        color: #999;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .step.active .step-circle {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .step.completed .step-circle {
+        background: #28a745;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="register-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="register-card">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold mb-2">سجل محلك الآن! 🎉</h2>
+                        <p class="text-muted">انضم لدليل الإسماعيلية واوصل لآلاف العملاء</p>
+                    </div>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- معلومات الحساب -->
+                        <h4 class="mb-4 text-primary">
+                            <i class="fas fa-user-circle"></i> معلومات الحساب
+                        </h4>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">اسم المستخدم *</label>
+                                <input type="text" 
+                                       name="username" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="اختر اسم مستخدم"
+                                       required>
+                                <small class="text-muted">سيستخدم لتسجيل الدخول</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">البريد الإلكتروني *</label>
+                                <input type="email" 
+                                       name="email" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="example@email.com"
+                                       required>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">كلمة المرور *</label>
+                                <input type="password" 
+                                       name="password1" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="أدخل كلمة مرور قوية"
+                                       required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">تأكيد كلمة المرور *</label>
+                                <input type="password" 
+                                       name="password2" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="أعد إدخال كلمة المرور"
+                                       required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">رقم الهاتف *</label>
+                            <input type="text" 
+                                   name="phone" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="01xxxxxxxxx"
+                                   required>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <!-- معلومات المحل -->
+                        <h4 class="mb-4 text-primary">
+                            <i class="fas fa-store"></i> معلومات المحل
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">اسم المحل *</label>
+                            <input type="text" 
+                                   name="business_name" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="اسم المحل أو الخدمة"
+                                   required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">الفئة *</label>
+                                <select name="category" class="form-select form-select-lg" required>
+                                    <option value="">اختر الفئة</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">الحي *</label>
+                                <select name="district" class="form-select form-select-lg" required>
+                                    <option value="">اختر الحي</option>
+                                    {% for district in districts %}
+                                    <option value="{{ district.id }}">{{ district.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">العنوان *</label>
+                            <textarea name="address" 
+                                      class="form-control" 
+                                      rows="2" 
+                                      placeholder="العنوان التفصيلي للمحل"
+                                      required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">وصف المحل *</label>
+                            <textarea name="description" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      placeholder="اكتب وصفاً تفصيلياً عن المحل والخدمات المقدمة"
+                                      required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">رقم واتساب (اختياري)</label>
+                            <input type="text" 
+                                   name="whatsapp" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="01xxxxxxxxx">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ساعات العمل (اختياري)</label>
+                            <textarea name="working_hours" 
+                                      class="form-control" 
+                                      rows="2" 
+                                      placeholder="مثال: السبت-الخميس: 9 صباحاً - 10 مساءً"></textarea>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                أوافق على <a href="#" class="text-decoration-none">الشروط والأحكام</a>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-check-circle"></i> إنشاء الحساب وتسجيل المحل
+                        </button>
+                        
+                        <div class="text-center mt-3">
+                            <p class="mb-0">لديك حساب بالفعل؟ 
+                                <a href="{% url 'login' %}" class="text-decoration-none fw-bold">
+                                    سجل الدخول
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

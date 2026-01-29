@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}محلات {{ user_obj.get_full_name|default:user_obj.username }} - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+        overflow-x: hidden;
+        max-width: calc(100% - 280px);
+    }
+    
+    .business-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .business-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    
+    .business-card .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .business-card .placeholder-img {
+        height: 200px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .empty-state-box {
+        background: white;
+        border-radius: 10px;
+        padding: 60px 20px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .empty-state-box i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 991px) {
+        .dashboard-main {
+            max-width: 100%;
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <main class="dashboard-main">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>
+                    <i class="fas fa-store text-primary"></i>
+                    محلات {{ user_obj.get_full_name|default:user_obj.username }}
+                </h2>
+                <p class="text-muted mb-0">
+                    إجمالي المحلات: <strong>{{ businesses.count }}</strong>
+                </p>
+            </div>
+            <a href="{% url 'manage_users' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+            </a>
+        </div>
+        
+        <!-- Businesses Grid -->
+        <div class="row g-4">
+            {% for business in businesses %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card business-card h-100">
+                    {% if business.logo %}
+                    <img src="{{ business.logo.url }}" class="card-img-top" alt="{{ business.name }}">
+                    {% else %}
+                    <div class="placeholder-img">
+                        <i class="fas fa-store fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ business.name }}</h5>
+                        <p class="card-text text-muted small mb-2">
+                            <i class="fas fa-tag"></i> {{ business.category.name }}
+                        </p>
+                        <p class="card-text mb-2">
+                            <i class="fas fa-map-marker-alt text-danger"></i>
+                            {{ business.district.name }}، {{ business.governorate.name }}
+                        </p>
+                        <p class="card-text small text-muted mb-2">
+                            <i class="fas fa-phone"></i> {{ business.phone }}
+                        </p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="badge {% if business.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if business.is_active %}
+                                <i class="fas fa-check-circle"></i> نشط
+                                {% else %}
+                                <i class="fas fa-times-circle"></i> معطل
+                                {% endif %}
+                            </span>
+                            <span class="badge {% if business.is_verified %}bg-primary{% else %}bg-warning text-dark{% endif %}">
+                                {% if business.is_verified %}
+                                <i class="fas fa-badge-check"></i> موثق
+                                {% else %}
+                                <i class="fas fa-clock"></i> غير موثق
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-light">
+                        <div class="d-flex gap-2">
+                            <a href="{{ business.get_absolute_url }}" 
+                               class="btn btn-sm btn-outline-primary flex-fill" 
+                               target="_blank"
+                               title="عرض {{ business.name }} في الموقع">
+                                <i class="fas fa-eye"></i> عرض
+                            </a>
+                            <a href="{% url 'edit_business_admin' business.pk %}" 
+                               class="btn btn-sm btn-outline-success flex-fill"
+                               title="تعديل {{ business.name }}">
+                                <i class="fas fa-edit"></i> تعديل
+                            </a>
+                            <a href="{% url 'toggle_business_status' business.pk %}" 
+                               class="btn btn-sm btn-outline-warning flex-fill"
+                               title="{% if business.is_active %}تعطيل{% else %}تفعيل{% endif %} {{ business.name }}"
+                               onclick="return confirm('هل تريد {% if business.is_active %}تعطيل{% else %}تفعيل{% endif %} {{ business.name }}؟')">
+                                <i class="fas fa-power-off"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="empty-state-box">
+                    <i class="fas fa-store"></i>
+                    <h5 class="text-muted">لا يوجد محلات لهذا المستخدم</h5>
+                    <p class="text-muted mb-4">لم يقم هذا المستخدم بإضافة أي محلات بعد</p>
+                    <a href="{% url 'add_business_admin' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> إضافة محل جديد
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+{% endblock %}

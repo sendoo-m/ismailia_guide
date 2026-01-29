@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}الصفحة غير موجودة - 404{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="min-height: 70vh;">
+    <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+        <div class="col-lg-6 text-center">
+            <div class="error-animation floating">
+                <i class="fas fa-map-marked-alt-slash" style="font-size: 150px; color: #667eea;"></i>
+            </div>
+            
+            <h1 class="display-1 fw-bold gradient-text mt-4">404</h1>
+            <h2 class="fw-bold mb-3">عذراً، الصفحة غير موجودة!</h2>
+            <p class="lead text-muted mb-5">
+                للأسف الصفحة التي تبحث عنها غير موجودة أو تم نقلها.<br>
+                جرب البحث في دليلنا عن ما تحتاجه.
+            </p>
+            
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{% url 'home' %}" class="btn btn-primary btn-lg btn-magic">
+                    <i class="fas fa-home"></i> الصفحة الرئيسية
+                </a>
+                <a href="{% url 'business_list' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-store"></i> تصفح المحلات
+                </a>
+                <a href="{% url 'contact' %}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-phone"></i> اتصل بنا
+                </a>
+            </div>
+            
+            <!-- بحث سريع -->
+            <div class="mt-5">
+                <form action="{% url 'business_list' %}" method="GET" class="mx-auto" style="max-width: 500px;">
+                    <div class="input-group input-group-lg">
+                        <input type="text" 
+                               name="q" 
+                               class="form-control" 
+                               placeholder="ابحث عن محل أو خدمة..."
+                               style="border-radius: 15px 0 0 15px;">
+                        <button class="btn btn-primary" type="submit" style="border-radius: 0 15px 15px 0;">
+                            <i class="fas fa-search"></i> بحث
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

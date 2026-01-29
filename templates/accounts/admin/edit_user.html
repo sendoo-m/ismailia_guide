@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تعديل {{ user_obj.get_full_name|default:user_obj.username }} - دليل الإسماعيلية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+        overflow-x: hidden;
+        max-width: calc(100% - 280px);
+    }
+    
+    .user-info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .user-avatar-lg {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: white;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        border: 3px solid rgba(255,255,255,0.3);
+    }
+    
+    .edit-form-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    
+    .edit-form-card .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        border: none;
+    }
+    
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    @media (max-width: 991px) {
+        .dashboard-main {
+            max-width: 100%;
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <main class="dashboard-main">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-user-edit text-primary"></i>
+                    تعديل بيانات المستخدم
+                </h2>
+                <a href="{% url 'manage_users' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right"></i> رجوع
+                </a>
+            </div>
+            
+            <!-- User Info Card -->
+            <div class="user-info-card">
+                <div class="d-flex align-items-center">
+                    <div class="user-avatar-lg me-3">
+                        {{ user_obj.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <h5 class="mb-1">{{ user_obj.get_full_name|default:user_obj.username }}</h5>
+                        <p class="mb-0 opacity-75">
+                            <i class="fas fa-user"></i> {{ user_obj.username }} | 
+                            <i class="fas fa-envelope"></i> {{ user_obj.email|default:"لا يوجد" }} |
+                            <i class="fas fa-calendar"></i> منذ {{ user_obj.date_joined|date:"Y/m/d" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit Form -->
+            <div class="edit-form-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> تعديل البيانات</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- الاسم الأول -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i> الاسم الأول
+                                </label>
+                                <input type="text" name="first_name" class="form-control" 
+                                       value="{{ user_obj.first_name }}" required>
+                            </div>
+                            
+                            <!-- الاسم الأخير -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i> الاسم الأخير
+                                </label>
+                                <input type="text" name="last_name" class="form-control" 
+                                       value="{{ user_obj.last_name }}" required>
+                            </div>
+                            
+                            <!-- البريد الإلكتروني -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i> البريد الإلكتروني
+                                </label>
+                                <input type="email" name="email" class="form-control" 
+                                       value="{{ user_obj.email }}">
+                            </div>
+                            
+                            <!-- رقم الهاتف -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-phone"></i> رقم الهاتف
+                                </label>
+                                <input type="text" name="phone" class="form-control" 
+                                       value="{{ user_obj.phone }}">
+                            </div>
+                            
+                            <!-- نوع المستخدم -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-user-tag"></i> نوع المستخدم
+                                </label>
+                                <select name="user_type" class="form-select" required>
+                                    <option value="customer" {% if user_obj.user_type == 'customer' %}selected{% endif %}>عميل</option>
+                                    <option value="vendor" {% if user_obj.user_type == 'vendor' %}selected{% endif %}>صاحب محل</option>
+                                    <option value="admin" {% if user_obj.user_type == 'admin' %}selected{% endif %}>مدير</option>
+                                </select>
+                            </div>
+                            
+                            <!-- الحالات -->
+                            <div class="col-12">
+                                <hr class="my-3">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-cog"></i> الحالات والصلاحيات
+                                </h6>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_active" 
+                                           id="is_active" {% if user_obj.is_active %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">
+                                        <i class="fas fa-check-circle text-success"></i> الحساب نشط
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_verified" 
+                                           id="is_verified" {% if user_obj.is_verified %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_verified">
+                                        <i class="fas fa-badge-check text-primary"></i> حساب موثق
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_staff" 
+                                           id="is_staff" {% if user_obj.is_staff %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_staff">
+                                        <i class="fas fa-user-shield text-danger"></i> صلاحيات إدارية
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> حفظ التعديلات
+                            </button>
+                            <a href="{% url 'manage_users' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}

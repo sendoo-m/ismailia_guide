@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}الأسئلة الشائعة - دليل الإسماعيلية{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="fw-bold mb-3">
+                    <i class="fas fa-question-circle text-primary"></i>
+                    الأسئلة الشائعة
+                </h1>
+                <p class="lead text-muted">إجابات على أكثر الأسئلة شيوعاً</p>
+            </div>
+            
+            <div class="accordion" id="faqAccordion">
+                <!-- للمستخدمين -->
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-3">
+                        <i class="fas fa-users text-primary"></i>
+                        للمستخدمين
+                    </h3>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+                                ما هو دليل الإسماعيلية؟
+                            </button>
+                        </h2>
+                        <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                دليل الإسماعيلية هو منصة إلكترونية شاملة تساعدك في العثور على أفضل المحلات والخدمات في محافظة الإسماعيلية. يمكنك البحث حسب الفئة أو الموقع، وقراءة التقييمات، والتواصل مع أصحاب المحلات مباشرة.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+                                هل استخدام المنصة مجاني؟
+                            </button>
+                        </h2>
+                        <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                نعم، استخدام المنصة للبحث عن المحلات وقراءة التقييمات مجاني تماماً للمستخدمين.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+                                كيف أضيف تقييماً لمحل؟
+                            </button>
+                        </h2>
+                        <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                ادخل إلى صفحة المحل، وانتقل إلى قسم "التقييمات"، ثم اضغط على "أضف تقييم". يمكنك اختيار عدد النجوم وكتابة مراجعة عن تجربتك.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- لأصحاب المحلات -->
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-3">
+                        <i class="fas fa-store text-primary"></i>
+                        لأصحاب المحلات
+                    </h3>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4">
+                                كيف أسجل محلي على المنصة؟
+                            </button>
+                        </h2>
+                        <div id="q4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                اضغط على "سجل محلك" من الصفحة الرئيسية، واملأ المعلومات المطلوبة (الاسم، الفئة، الموقع، إلخ). سيتم مراجعة طلبك خلال 24 ساعة وتفعيل حسابك.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5">
+                                ما هي خطط الاشتراك المتاحة؟
+                            </button>
+                        </h2>
+                        <div id="q5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                لدينا 4 خطط: <strong>مجانية</strong> (5 منتجات)، <strong>أساسية</strong> (50 منتج)، <strong>مميزة</strong> (200 منتج + ظهور مميز)، و<strong>VIP</strong> (منتجات غير محدودة). لمزيد من التفاصيل، راجع صفحة <a href="{% url 'upgrade_subscription_page' %}">خطط الاشتراك</a>.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q6">
+                                كيف أضيف منتجات لمحلي؟
+                            </button>
+                        </h2>
+                        <div id="q6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                من لوحة التحكم، اذهب إلى "إدارة المنتجات" ← "إضافة منتج جديد". يمكنك أيضاً استيراد منتجات متعددة مرة واحدة من ملف CSV.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q7">
+                                هل يمكنني تعديل معلومات محلي؟
+                            </button>
+                        </h2>
+                        <div id="q7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                نعم، يمكنك تعديل كل المعلومات (الوصف، العنوان، أرقام التواصل، الموقع على الخريطة، إلخ) في أي وقت من خلال لوحة التحكم.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- الدفع والاشتراك -->
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-3">
+                        <i class="fas fa-credit-card text-primary"></i>
+                        الدفع والاشتراك
+                    </h3>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q8">
+                                ما هي طرق الدفع المتاحة؟
+                            </button>
+                        </h2>
+                        <div id="q8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                نقبل الدفع عبر: فيزا/ماستركارد، فودافون كاش، فوري، أو التحويل البنكي.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q9">
+                                هل يمكنني إلغاء اشتراكي؟
+                            </button>
+                        </h2>
+                        <div id="q9" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                نعم، يمكنك إلغاء التجديد التلقائي في أي وقت من لوحة التحكم. الاشتراك الحالي سيستمر حتى نهاية المدة المدفوعة.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- الدعم الفني -->
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-3">
+                        <i class="fas fa-headset text-primary"></i>
+                        الدعم الفني
+                    </h3>
+                    
+                    <div class="accordion-item mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q10">
+                                كيف أتواصل مع الدعم الفني؟
+                            </button>
+                        </h2>
+                        <div id="q10" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                يمكنك التواصل معنا عبر:
+                                <ul>
+                                    <li><strong>الهاتف:</strong> 01234567890</li>
+                                    <li><strong>واتساب:</strong> 01234567890</li>
+                                    <li><strong>البريد:</strong> info@ismailia-guide.com</li>
+                                    <li><strong>أو عبر</strong> <a href="{% url 'contact' %}">صفحة اتصل بنا</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- لم تجد إجابة؟ -->
+            <div class="text-center mt-5">
+                <div class="card border-primary">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-3">لم تجد إجابة لسؤالك؟</h4>
+                        <p class="text-muted mb-4">نحن هنا لمساعدتك! تواصل معنا وسنرد عليك في أسرع وقت.</p>
+                        <a href="{% url 'contact' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane"></i> اتصل بنا
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

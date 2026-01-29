@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /media/private/
+
+Sitemap: https://ismailia-guide.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 10

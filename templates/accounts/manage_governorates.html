@@ -1,0 +1,632 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إدارة المحافظات - لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    
+    <!-- 📋 Sidebar -->
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <!-- 📄 Main Content -->
+    <div class="dashboard-content">
+        <div class="container-fluid py-4">
+            
+            <!-- 📊 Header & Add Button -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-map-marked-alt text-primary"></i>
+                        إدارة المحافظات
+                    </h2>
+                    <p class="text-muted mb-0">إدارة المحافظات والمناطق الجغرافية</p>
+                </div>
+                <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addGovernorateModal">
+                    <i class="fas fa-plus me-2"></i>إضافة محافظة
+                </button>
+            </div>
+            
+            <!-- 📈 Statistics Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card stat-card shadow-sm h-100 border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1 small text-uppercase fw-semibold">إجمالي المحافظات</p>
+                                    <h3 class="mb-0 fw-bold">{{ total_governorates }}</h3>
+                                </div>
+                                <div class="stat-icon bg-primary">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="card stat-card shadow-sm h-100 border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1 small text-uppercase fw-semibold">المحافظات النشطة</p>
+                                    <h3 class="mb-0 fw-bold text-success">{{ active_governorates }}</h3>
+                                </div>
+                                <div class="stat-icon bg-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="card stat-card shadow-sm h-100 border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1 small text-uppercase fw-semibold">إجمالي المحلات</p>
+                                    <h3 class="mb-0 fw-bold text-info">{{ total_businesses }}</h3>
+                                </div>
+                                <div class="stat-icon bg-info">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="card stat-card shadow-sm h-100 border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1 small text-uppercase fw-semibold">إجمالي الأحياء</p>
+                                    <h3 class="mb-0 fw-bold text-warning">{{ total_districts }}</h3>
+                                </div>
+                                <div class="stat-icon bg-warning">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 📋 Governorates Table -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list text-primary me-2"></i>
+                            قائمة المحافظات
+                        </h5>
+                        <span class="badge bg-primary fs-6">{{ governorates.count }}</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="50" class="text-center">#</th>
+                                    <th width="70" class="text-center">الأيقونة</th>
+                                    <th>اسم المحافظة</th>
+                                    <th>الاسم EN</th>
+                                    <th class="text-center">الأحياء</th>
+                                    <th class="text-center">المحلات</th>
+                                    <th class="text-center">النشطة</th>
+                                    <th class="text-center">الترتيب</th>
+                                    <th class="text-center">الحالة</th>
+                                    <th class="text-center" width="200">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for gov in governorates %}
+                                <tr>
+                                    <td class="text-center fw-semibold text-muted">{{ forloop.counter }}</td>
+                                    <td class="text-center">
+                                        <i class="{{ gov.icon|default:'fas fa-city' }} fa-2x text-primary"></i>
+                                    </td>
+                                    <td>
+                                        <strong class="d-block">{{ gov.name }}</strong>
+                                        {% if gov.description %}
+                                        <small class="text-muted">{{ gov.description|truncatewords:10 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ gov.name_en|default:"—" }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info">
+                                            {{ gov.district_count }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary">
+                                            {{ gov.business_count }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                            {{ gov.active_business_count }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary">{{ gov.order }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if gov.is_active %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>نشط
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>معطل
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <!-- عرض -->
+                                            <a href="{% url 'governorate_detail' gov.slug %}" 
+                                            class="btn btn-outline-info" 
+                                            target="_blank"
+                                            data-bs-toggle="tooltip"
+                                            title="عرض التفاصيل">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            
+                                            <!-- تعديل -->
+                                            <button class="btn btn-outline-primary" 
+                                                    onclick="editGovernorate({{ gov.id }}, '{{ gov.name|escapejs }}', '{{ gov.name_en|escapejs }}', '{{ gov.description|escapejs }}', '{{ gov.icon|escapejs }}', {{ gov.order }}, {{ gov.is_active|yesno:'true,false' }})"
+                                                    data-bs-toggle="tooltip"
+                                                    title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            
+                                            <!-- تبديل الحالة ✅ مصحح -->
+                                            <form method="post" class="d-inline" style="margin: 0;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="governorate_id" value="{{ gov.id }}">
+                                                <input type="hidden" name="toggle_active" value="1">
+                                                <button type="submit" 
+                                                        class="btn btn-outline-{% if gov.is_active %}warning{% else %}success{% endif %} btn-sm"
+                                                        onclick="return confirm('هل أنت متأكد من {% if gov.is_active %}إلغاء تفعيل{% else %}تفعيل{% endif %} المحافظة؟');"
+                                                        data-bs-toggle="tooltip"
+                                                        title="{% if gov.is_active %}إلغاء التفعيل{% else %}تفعيل{% endif %}">
+                                                    <i class="fas fa-{% if gov.is_active %}ban{% else %}check{% endif %}"></i>
+                                                </button>
+                                            </form>
+                                            
+                                            <!-- حذف -->
+                                            <button class="btn btn-outline-danger" 
+                                                    onclick="deleteGovernorate({{ gov.id }}, '{{ gov.name|escapejs }}', {{ gov.business_count }})"
+                                                    data-bs-toggle="tooltip"
+                                                    title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+
+<!-- ========================================
+     ✨ Add Governorate Modal
+     ======================================== -->
+<div class="modal fade" id="addGovernorateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="add_governorate" value="1">  <!-- ← أضف ده! -->
+                
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        إضافة محافظة جديدة
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                اسم المحافظة <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="name" class="form-control" placeholder="مثال: الإسماعيلية" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الاسم بالإنجليزية</label>
+                            <input type="text" name="name_en" class="form-control" placeholder="Example: Ismailia">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">الوصف</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="وصف مختصر عن المحافظة..."></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">الأيقونة</label>
+                            <input type="text" name="icon" class="form-control" value="fas fa-city" placeholder="fas fa-city">
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-info-circle me-1"></i>
+                                استخدم أيقونات FontAwesome
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الترتيب</label>
+                            <input type="number" name="order" class="form-control" value="0" min="0">
+                            <small class="text-muted">يستخدم لترتيب العرض في القوائم</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>حفظ المحافظة
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- ========================================
+     ✏️ Edit Governorate Modal
+     ======================================== -->
+<div class="modal fade" id="editGovernorateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="governorate_id" id="edit_governorate_id">
+                <input type="hidden" name="edit_governorate" value="1">  <!-- ← أضف ده! -->
+                
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>
+                        تعديل محافظة
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                اسم المحافظة <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="name" id="edit_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الاسم بالإنجليزية</label>
+                            <input type="text" name="name_en" id="edit_name_en" class="form-control">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">الوصف</label>
+                            <textarea name="description" id="edit_description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">الأيقونة</label>
+                            <input type="text" name="icon" id="edit_icon" class="form-control" placeholder="fas fa-city">
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-info-circle me-1"></i>
+                                أيقونة FontAwesome
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">الترتيب</label>
+                            <input type="number" name="order" id="edit_order" class="form-control" min="0" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-4 pt-2">
+                                <input type="checkbox" name="is_active" id="edit_is_active" class="form-check-input" role="switch">
+                                <label class="form-check-label fw-semibold" for="edit_is_active">
+                                    <i class="fas fa-toggle-on me-1"></i>نشط
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image me-1"></i>صورة المحافظة
+                            </label>
+                            <input type="file" name="image" id="edit_image" class="form-control" accept="image/*">
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-info-circle me-1"></i>
+                                اختياري - يفضل صورة بحجم 1200x600 بكسل (JPG, PNG)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save me-1"></i>تحديث المحافظة
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- ========================================
+     🗑️ Delete Governorate Modal
+     ======================================== -->
+<div class="modal fade" id="deleteGovernorateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="governorate_id" id="delete_governorate_id">
+                <input type="hidden" name="delete_governorate" value="1">  <!-- ← أضف ده! -->
+                
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        تأكيد الحذف
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="delete_message"></div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>حذف نهائياً
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- ========================================
+     📜 JavaScript Functions
+     ======================================== -->
+<script>
+    // Initialize Tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+    // تعديل محافظة
+    function editGovernorate(id, name, name_en, description, icon, order, is_active) {
+        document.getElementById('edit_governorate_id').value = id;
+        document.getElementById('edit_name').value = name || '';
+        document.getElementById('edit_name_en').value = name_en || '';
+        document.getElementById('edit_description').value = description || '';
+        document.getElementById('edit_icon').value = icon || 'fas fa-city';
+        document.getElementById('edit_order').value = order || 0;
+        document.getElementById('edit_is_active').checked = is_active;
+        
+        var modal = new bootstrap.Modal(document.getElementById('editGovernorateModal'));
+        modal.show();
+    }
+    
+    // حذف محافظة
+    function deleteGovernorate(id, name, businessCount) {
+        document.getElementById('delete_governorate_id').value = id;
+        
+        let message = '';
+        const deleteButton = document.querySelector('#deleteGovernorateModal button[name="delete_governorate"]');
+        
+        if (businessCount > 0) {
+            message = `
+                <div class="alert alert-warning border-0 shadow-sm">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning me-3"></i>
+                        <div>
+                            <h6 class="alert-heading mb-1">تحذير: لا يمكن الحذف</h6>
+                            <p class="mb-0">
+                                هذه المحافظة تحتوي على <strong>${businessCount}</strong> محل نشط ولا يمكن حذفها.
+                                يجب حذف أو نقل المحلات أولاً.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            deleteButton.disabled = true;
+        } else {
+            message = `
+                <div class="alert alert-danger border-0 shadow-sm">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-trash-alt fa-2x text-danger me-3"></i>
+                        <div>
+                            <h6 class="alert-heading mb-1">تأكيد الحذف</h6>
+                            <p class="mb-0">
+                                هل أنت متأكد من حذف المحافظة "<strong>${name}</strong>"؟
+                                <br><small class="text-muted">هذا الإجراء لا يمكن التراجع عنه.</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            deleteButton.disabled = false;
+        }
+        
+        document.getElementById('delete_message').innerHTML = message;
+        
+        var modal = new bootstrap.Modal(document.getElementById('deleteGovernorateModal'));
+        modal.show();
+    }
+</script>
+
+<!-- ========================================
+     🎨 Custom Styles
+     ======================================== -->
+<style>
+    /* Dashboard Layout */
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 76px);
+    }
+    
+    .dashboard-content {
+        flex: 1;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        overflow-x: hidden;
+    }
+    
+    /* Statistics Cards */
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Table Styling */
+    .table {
+        font-size: 0.95rem;
+    }
+    
+    .table thead th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        background: #f8f9fa;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
+    }
+    
+    /* Button Group */
+    .btn-group-sm .btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.875rem;
+        border-radius: 6px;
+    }
+    
+    .btn-group-sm .btn:not(:last-child) {
+        margin-left: 3px;
+    }
+    
+    /* Badges */
+    .badge {
+        padding: 0.45em 0.8em;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+    
+    /* Card Enhancements */
+    .card {
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+        background: white;
+    }
+    
+    /* Modal Enhancements */
+    .modal-content {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        padding: 40px 20px;
+    }
+    
+    .empty-state i {
+        display: block;
+    }
+    
+    /* Form Controls */
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    /* Responsive */
+    @media (max-width: 991px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .stat-card h3 {
+            font-size: 1.5rem;
+        }
+        
+        .table {
+            font-size: 0.85rem;
+        }
+        
+        .btn-group-sm .btn {
+            padding: 0.3rem 0.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .dashboard-content {
+            padding: 0 !important;
+        }
+        
+        .container-fluid {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+    }
+</style>
+
+{% endblock %}

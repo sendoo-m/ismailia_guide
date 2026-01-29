@@ -1,0 +1,522 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إدارة المحلات - لوحة التحكم{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    
+    <main class="dashboard-main">
+        <!-- Header -->
+        <!-- في أول manage_businesses.html بعد العنوان -->
+        <div class="page-header mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-store text-primary me-2"></i>
+                        إدارة المحلات
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-list me-1"></i>
+                        إجمالي: <strong>{{ total_count }}</strong> محل
+                    </p>
+                </div>
+                
+                <!-- زر إضافة محل جديد -->
+                <a href="{% url 'add_business_admin' %}" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    إضافة محل جديد
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card mb-4">
+            <form method="GET" class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <input type="text" 
+                           name="search" 
+                           class="form-control form-control-sm" 
+                           placeholder="🔍 بحث بالاسم أو المالك..."
+                           value="{{ search_query }}">
+                </div>
+                
+                <div class="col-md-2">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">كل الحالات</option>
+                        <option value="active" {% if current_status == 'active' %}selected{% endif %}>✅ نشط</option>
+                        <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>⏸️ معلق</option>
+                        <option value="verified" {% if current_status == 'verified' %}selected{% endif %}>🔰 موثق</option>
+                        <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>⏳ قيد المراجعة</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <select name="category" class="form-select form-select-sm">
+                        <option value="">كل الفئات</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if current_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-search me-1"></i> بحث
+                    </button>
+                </div>
+                
+                <div class="col-auto">
+                    <a href="{% url 'manage_businesses' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-redo me-1"></i> إعادة تعيين
+                    </a>
+                </div>
+                
+                <!-- عرض النتائج -->
+                <div class="col-auto ms-auto">
+                    <span class="badge bg-light text-dark">
+                        عرض {{ businesses.start_index }}-{{ businesses.end_index }} من {{ total_count }}
+                    </span>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Businesses Grid -->
+        <div class="businesses-container">
+            {% for business in businesses %}
+            <div class="business-card">
+                <div class="business-header">
+                    <div class="business-logo">
+                        {% if business.logo %}
+                        <img src="{{ business.logo.url }}" alt="{{ business.name }}">
+                        {% else %}
+                        <div class="logo-placeholder">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="business-info flex-grow-1">
+                        <h5 class="mb-1">{{ business.name }}</h5>
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-phone me-1"></i>
+                            {{ business.phone }}
+                        </p>
+                        <span class="badge bg-light text-dark">
+                            <i class="fas {{ business.category.icon }} me-1"></i>
+                            {{ business.category.name }}
+                        </span>
+                    </div>
+                    
+                    <div class="business-status">
+                        {% if business.is_active %}
+                        <span class="badge bg-success mb-1">
+                            <i class="fas fa-check-circle me-1"></i> نشط
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark mb-1">
+                            <i class="fas fa-pause-circle me-1"></i> معلق
+                        </span>
+                        {% endif %}
+                        <br>
+                        {% if business.is_verified %}
+                        <span class="badge bg-primary">
+                            <i class="fas fa-certificate me-1"></i> موثق
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="business-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt text-danger"></i>
+                        <span>{{ business.district.name }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-user text-info"></i>
+                        <span>{{ business.owner.username }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-eye text-primary"></i>
+                        <span>{{ business.view_count }} مشاهدة</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-calendar text-muted"></i>
+                        <span>{{ business.created_at|date:"Y/m/d" }}</span>
+                    </div>
+                </div>
+                
+                <div class="business-actions">
+                    <a href="{% url 'business_detail' business.slug %}" 
+                       class="btn-action btn-view"
+                       target="_blank"
+                       title="عرض">
+                        <i class="fas fa-eye"></i>
+                        <span>عرض</span>
+                    </a>
+                    
+                    <a href="{% url 'toggle_business_status' business.pk %}" 
+                       class="btn-action btn-toggle"
+                       title="تفعيل/إيقاف">
+                        <i class="fas fa-power-off"></i>
+                        <span>تفعيل/إيقاف</span>
+                    </a>
+                    
+                    <a href="{% url 'toggle_business_verification' business.pk %}" 
+                       class="btn-action btn-verify"
+                       title="توثيق/إلغاء">
+                        <i class="fas fa-certificate"></i>
+                        <span>توثيق</span>
+                    </a>
+                    
+                    <a href="{% url 'delete_business_admin' business.pk %}" 
+                       class="btn-action btn-delete"
+                       onclick="return confirm('هل أنت متأكد من حذف هذا المحل؟')"
+                       title="حذف">
+                        <i class="fas fa-trash"></i>
+                        <span>حذف</span>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-store"></i>
+                <h5>لا توجد محلات</h5>
+                <p>لم يتم العثور على محلات مطابقة للفلاتر المحددة</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if businesses.paginator.num_pages > 1 %}
+        <div class="pagination-wrapper mt-4">
+            <nav aria-label="navigation">
+                <ul class="pagination pagination-modern justify-content-center">
+                    <!-- Previous -->
+                    {% if businesses.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ businesses.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
+                            <span class="d-none d-sm-inline">السابق</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="fas fa-chevron-right"></i>
+                            <span class="d-none d-sm-inline">السابق</span>
+                        </span>
+                    </li>
+                    {% endif %}
+                    
+                    <!-- Page Numbers -->
+                    {% for num in businesses.paginator.page_range %}
+                        {% if businesses.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > businesses.number|add:'-3' and num < businesses.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- Next -->
+                    {% if businesses.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ businesses.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">
+                            <span class="d-none d-sm-inline">التالي</span>
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <span class="d-none d-sm-inline">التالي</span>
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Layout */
+    .dashboard-wrapper {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+        padding: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    /* Page Header */
+    .page-header {
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    /* Filters */
+    .filters-card {
+        padding: 15px 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    /* Businesses Container */
+    .businesses-container {
+        display: grid;
+        gap: 20px;
+    }
+    
+    /* Business Card */
+    .business-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+    
+    .business-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        border-color: #667eea;
+    }
+    
+    .business-header {
+        display: flex;
+        align-items: start;
+        gap: 15px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .business-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 2px solid #f0f0f0;
+    }
+    
+    .business-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .logo-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+    }
+    
+    .business-info h5 {
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .business-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .detail-item i {
+        font-size: 1rem;
+    }
+    
+    /* Business Actions */
+    .business-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-view {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-view:hover {
+        background: #5568d3;
+        transform: scale(1.05);
+    }
+    
+    .btn-toggle {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-toggle:hover {
+        background: #218838;
+        transform: scale(1.05);
+    }
+    
+    .btn-verify {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .btn-verify:hover {
+        background: #138496;
+        transform: scale(1.05);
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-delete:hover {
+        background: #c82333;
+        transform: scale(1.05);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+    
+    /* Pagination */
+    .pagination-wrapper {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .pagination-modern {
+        margin: 0;
+        gap: 5px;
+    }
+    
+    .pagination-modern .page-item .page-link {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 15px;
+        color: #667eea;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .pagination-modern .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+    }
+    
+    .pagination-modern .page-item .page-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+        transform: translateY(-2px);
+    }
+    
+    .pagination-modern .page-item.disabled .page-link {
+        background: transparent;
+        color: #6c757d;
+    }
+    
+    /* Responsive */
+    @media (max-width: 991px) {
+        .dashboard-wrapper {
+            flex-direction: column;
+        }
+        
+        .dashboard-main {
+            padding: 20px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .business-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .business-logo {
+            margin: 0 auto;
+        }
+        
+        .business-details {
+            grid-template-columns: 1fr;
+        }
+        
+        .business-actions {
+            flex-direction: column;
+        }
+        
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

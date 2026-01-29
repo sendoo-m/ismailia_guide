@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إضافة صاحب محل جديد{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        <!-- ========================================
+             SIDEBAR - القائمة الجانبية
+             ======================================== -->
+        {% include 'includes/admin_sidebar.html' %}
+        
+        <!-- ========================================
+             MAIN CONTENT - المحتوى الرئيسي
+             ======================================== -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'admin_dashboard' %}">
+                            <i class="fas fa-home me-1"></i>لوحة التحكم
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'dashboard_settings' %}">الإعدادات</a>
+                    </li>
+                    <li class="breadcrumb-item active">إضافة صاحب محل</li>
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-user-plus me-2 text-success"></i>
+                        إضافة صاحب محل جديد
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-info-circle me-1"></i>
+                        أضف حساب جديد لصاحب محل
+                    </p>
+                </div>
+                <a href="{% url 'dashboard_settings' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right me-2"></i>رجوع
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-user-circle me-2"></i>
+                        معلومات صاحب المحل
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- معلومات الحساب -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-success bg-opacity-10 rounded-circle p-2 me-2">
+                                        <i class="fas fa-user-lock text-success"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">معلومات تسجيل الدخول</h6>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-user me-1 text-muted"></i>
+                                    اسم المستخدم <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="username" class="form-control form-control-lg" 
+                                       placeholder="أدخل اسم المستخدم" required>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    سيستخدم لتسجيل الدخول
+                                </small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-1 text-muted"></i>
+                                    البريد الإلكتروني <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" name="email" class="form-control form-control-lg" 
+                                       placeholder="example@email.com" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-1 text-muted"></i>
+                                    كلمة المرور <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" name="password" class="form-control form-control-lg" 
+                                       placeholder="********" required>
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    على الأقل 8 أحرف
+                                </small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-1 text-muted"></i>
+                                    تأكيد كلمة المرور <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" name="confirm_password" class="form-control form-control-lg" 
+                                       placeholder="********" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- المعلومات الشخصية -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2">
+                                        <i class="fas fa-id-card text-primary"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">المعلومات الشخصية</h6>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-user me-1 text-muted"></i>
+                                    الاسم الأول <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="first_name" class="form-control form-control-lg" 
+                                       placeholder="الاسم الأول" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-user me-1 text-muted"></i>
+                                    الاسم الأخير <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="last_name" class="form-control form-control-lg" 
+                                       placeholder="الاسم الأخير" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-phone me-1 text-muted"></i>
+                                    رقم الهاتف
+                                </label>
+                                <input type="tel" name="phone" class="form-control form-control-lg" 
+                                       placeholder="01xxxxxxxxx">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-image me-1 text-muted"></i>
+                                    صورة الملف الشخصي
+                                </label>
+                                <input type="file" name="profile_image" class="form-control" accept="image/*">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    اختياري - يفضل صورة بحجم 300x300 بكسل
+                                </small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- الصلاحيات -->
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-2">
+                                        <i class="fas fa-shield-alt text-warning"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">الصلاحيات والحالة</h6>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="card border-success">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" name="is_active" id="is_active" 
+                                                   class="form-check-input form-check-input-lg" checked>
+                                            <label class="form-check-label fw-semibold" for="is_active">
+                                                <i class="fas fa-check-circle me-1 text-success"></i>
+                                                حساب نشط
+                                            </label>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            إذا تم إلغاء التحديد، لن يتمكن المستخدم من تسجيل الدخول
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="row mt-4 pt-4 border-top">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <a href="{% url 'dashboard_settings' %}" class="btn btn-light btn-lg px-4">
+                                        <i class="fas fa-times me-2"></i>إلغاء
+                                    </a>
+                                    <button type="submit" class="btn btn-success btn-lg px-5">
+                                        <i class="fas fa-save me-2"></i>إضافة صاحب المحل
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+{% endblock %}
